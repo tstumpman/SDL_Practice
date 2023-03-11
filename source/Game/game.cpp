@@ -47,13 +47,11 @@ void Game::logSdlError(std::vector<std::string> messages) {
 }
 
 void Game::runLoop() {
-	while (!isQuitting) {
+	while (isRunning) {
 		processInput();
 		updateGame();
 		generateOutput();
 	}
-
-
 }
 
 void Game::shutdown() {
@@ -62,6 +60,21 @@ void Game::shutdown() {
 }
 
 void Game::processInput() {
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			isRunning = false;
+			break;
+		}
+	}
+
+	//Get keyboard state;
+	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+	if (keyboardState[SDL_SCANCODE_ESCAPE]) {
+		isRunning = false;
+	}
 }
 
 void Game::updateGame() {
