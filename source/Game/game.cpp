@@ -1,5 +1,6 @@
 #include "game.h"
 #include "SDL/SDL.h"
+#include "../VideoConstants.h"
 
 Game::Game() {
 	isQuitting = false;
@@ -21,8 +22,8 @@ bool Game::initialize() {
 	"Window Title Goes Here",//Window Title
 		100,//Top Left X coord
 	    100,//Top Left Y coord
-		240,//Window Width
-		160,//Window Height
+		(GBA_WIDTH*3),//Window Width
+		(GBA_HEIGHT*3),//Window Height
 		sdlWindowOptions// Window flags
 	);
 
@@ -40,7 +41,7 @@ void Game::logSdlError(std::string errorMessage) {
 }
 
 void Game::logSdlError(std::vector<std::string> messages) {
-	for (int i = 0; i < messages.size(); i++) {
+	for (unsigned int i = 0; i < messages.size(); i++) {
 		SDL_Log(messages[i].c_str());
 	}
 }
