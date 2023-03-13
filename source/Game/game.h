@@ -17,7 +17,8 @@ public://Functions
 
 private://Functions
 	void processInput();
-	void updateGame();
+	long long getDeltaTime(long long previousTimestamp, long long maxDelta);
+	void updateGame(long long deltaTime);
 	void generateOutput();
 	void renderAudio();
 	void renderGraphics();

@@ -1,6 +1,9 @@
 #include "game.h"
 #include "SDL/SDL.h"
 #include "../VideoConstants.h"
+#include <chrono>
+
+using namespace std;
 
 Game::Game() {
 	isQuitting = false;
@@ -47,24 +50,43 @@ bool Game::initialize() {
 	return true;
 }
 
-void Game::logSdlError(std::string errorMessage) {
-	std::vector<std::string> a = std::vector<std::string>();
+void Game::logSdlError(string errorMessage) {
+	vector<string> a = vector<string>();
 	a.push_back(errorMessage);
 	logSdlError(a);
 }
 
-void Game::logSdlError(std::vector<std::string> messages) {
+void Game::logSdlError(vector<string> messages) {
 	for (unsigned int i = 0; i < messages.size(); i++) {
 		SDL_Log(messages[i].c_str());
 	}
 }
 
 void Game::runLoop() {
+	long long previousTime = getDeltaTime(0, -1);
+	long long deltaTime =0L;
+	int maxDelta = 1000 / 8;
 	while (isRunning) {
+		deltaTime = getDeltaTime(previousTime, maxDelta);
 		processInput();
 		updateGame();
 		generateOutput();
 	}
+}
+
+long long Game::getDeltaTime(long long previousTimestamp, long long maxDelta) {
+	long long currentTimestamp = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+	long long delta = currentTimestamp - previousTimestamp;
+
+	if (maxDelta < 0) {
+		return delta;
+	}
+
+	if (delta > maxDelta) {
+		return maxDelta;
+	}
+
+	return delta;
 }
 
 void Game::shutdown() {
@@ -92,7 +114,7 @@ void Game::processInput() {
 	}
 }
 
-void Game::updateGame() {
+void Game::updateGame(long long deltaTime) {
 }
 
 void Game::generateOutput() {
