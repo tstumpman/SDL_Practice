@@ -3,7 +3,11 @@
 
 #include <string>
 #include <vector>
+
+//Forward Declarations
 struct SDL_Window;
+class SDL_Renderer;
+
 class Game {
 public://Functions
 	Game();
@@ -22,6 +26,7 @@ private://Functions
 
 private://Data
 	SDL_Window* mWindow;
+	SDL_Renderer* mRenderer;
 	bool isRunning;
 	bool isQuitting;
 protected:
