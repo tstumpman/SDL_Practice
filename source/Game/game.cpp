@@ -69,7 +69,7 @@ void Game::runLoop() {
 	while (isRunning) {
 		deltaTime = getDeltaTime(previousTime, maxDelta);
 		processInput();
-		updateGame();
+		updateGame(deltaTime);
 		generateOutput();
 	}
 }
