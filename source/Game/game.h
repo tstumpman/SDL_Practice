@@ -3,11 +3,12 @@
 
 #include <string>
 #include <vector>
+#define PI 3.14159265f
+#define RADIANS_PER_CIRCLE PI*2
 
 //Forward Declarations
 struct SDL_Window;
 class SDL_Renderer;
-
 class Game {
 public://Functions
 	Game();
@@ -36,6 +37,9 @@ private://Data
 private://Temporary data for debugging purposes only
 	float objPosX;
 	float objPosY;
+	float rotation;
+	float frequency;
+	float amplitude;
 protected:
 
 };

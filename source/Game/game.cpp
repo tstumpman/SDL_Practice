@@ -12,6 +12,10 @@ Game::Game() {
 	objPosY = 0.0f;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
+	rotation = 0.0f;
+	frequency = 1.0f;
+	amplitude = GBA_HEIGHT * 3 / 2.0f;
+
 }
 
 bool Game::initialize() {
@@ -122,11 +126,19 @@ void Game::processInput() {
 void Game::updateGame(float deltaTime) {
 	float screenWidth = GBA_WIDTH * 3.0f;
 	float screenHeight = GBA_HEIGHT * 3.0f;
+	
 	objPosX += (screenWidth) / 5.0f * deltaTime;
 	while (objPosX > screenWidth) {
 		objPosX -= screenWidth;
 	}
-	objPosY = ((screenHeight/10.0f) * sin(objPosX/3.1415965/10.0f) + screenHeight / 2.0f);
+	
+	rotation += deltaTime * frequency * RADIANS_PER_CIRCLE;
+	while (rotation > RADIANS_PER_CIRCLE) {
+		rotation -= RADIANS_PER_CIRCLE;
+	}
+	float currentPhase = cos(rotation);
+	float offset = screenHeight / 2.0f;
+	objPosY = amplitude * currentPhase + offset;
 }
 
 void Game::generateOutput() {
