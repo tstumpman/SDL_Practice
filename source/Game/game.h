@@ -26,8 +26,8 @@ private://Functions
 	void logSdlError(std::vector<std::string> messages);
 
 private://Data
-	float minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
-	float maxDelta = 1.0f / 8.0f;//1/8th of a second
+	float minimumFrameLimit;
+	float maxDelta;
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer;
 	bool isRunning;

@@ -10,6 +10,8 @@ Game::Game() {
 	mWindow = nullptr;
 	objPosX = 0.0f;
 	objPosY = 0.0f;
+	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
+	maxDelta = 1.0f / 8.0f;//1/8th of a second
 }
 
 bool Game::initialize() {
