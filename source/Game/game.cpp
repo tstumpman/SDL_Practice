@@ -1,7 +1,6 @@
 #include "game.h"
 #include "SDL/SDL.h"
 #include "../VideoConstants.h"
-#include <chrono>
 
 using namespace std;
 
@@ -9,6 +8,8 @@ Game::Game() {
 	isQuitting = false;
 	isRunning = true;
 	mWindow = nullptr;
+	objPosX = 0.0f;
+	objPosY = 0.0f;
 }
 
 bool Game::initialize() {
@@ -63,20 +64,22 @@ void Game::logSdlError(vector<string> messages) {
 }
 
 void Game::runLoop() {
-	long long previousTime = getDeltaTime(0, -1);
-	long long deltaTime =0L;
-	int maxDelta = 1000 / 8;
+	float previousTime = SDL_GetTicks() / 1000.0f;
+	float deltaTime = 0.0f;
 	while (isRunning) {
-		deltaTime = getDeltaTime(previousTime, maxDelta);
-		processInput();
-		updateGame(deltaTime);
-		generateOutput();
+		float currentTimestamp = SDL_GetTicks() / 1000.0f;
+		deltaTime = getDeltaTime(previousTime, currentTimestamp, maxDelta);
+		if (deltaTime > minimumFrameLimit) {
+			processInput();
+			updateGame(deltaTime);
+			generateOutput();
+			previousTime = currentTimestamp;
+		}
 	}
 }
 
-long long Game::getDeltaTime(long long previousTimestamp, long long maxDelta) {
-	long long currentTimestamp = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-	long long delta = currentTimestamp - previousTimestamp;
+float Game::getDeltaTime(float previousTimestamp, float currentTimestamp, float maxDelta) {
+	float delta = currentTimestamp - previousTimestamp;
 
 	if (maxDelta < 0) {
 		return delta;
@@ -114,7 +117,14 @@ void Game::processInput() {
 	}
 }
 
-void Game::updateGame(long long deltaTime) {
+void Game::updateGame(float deltaTime) {
+	float screenWidth = GBA_WIDTH * 3.0f;
+	float screenHeight = GBA_HEIGHT * 3.0f;
+	objPosX += (screenWidth) / 5.0f * deltaTime;
+	while (objPosX > screenWidth) {
+		objPosX -= screenWidth;
+	}
+	objPosY = ((screenHeight/10.0f) * sin(objPosX/3.1415965/10.0f) + screenHeight / 2.0f);
 }
 
 void Game::generateOutput() {
@@ -127,6 +137,10 @@ void Game::renderAudio() {
 }
 
 void Game::renderGraphics() {
+	int windowHeight = 0;
+	int windowWidth = 0;
+	SDL_GetWindowSize(mWindow, &windowWidth, &windowHeight);
+
 	//clear the backbuffer
 	SDL_SetRenderDrawColor(
 		mRenderer,	//
@@ -137,6 +151,13 @@ void Game::renderGraphics() {
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
+	SDL_SetRenderDrawColor(mRenderer,255,255,255,255);
+	SDL_Rect paddleRect = SDL_Rect();
+	paddleRect.h = windowHeight/10;
+	paddleRect.w = windowWidth/20;
+	paddleRect.x = objPosX - paddleRect.w/2.0f;
+	paddleRect.y = objPosY - paddleRect.h/2.0f;
+	SDL_RenderFillRect(mRenderer, &paddleRect);
 	//Swap the front and backbuffers.
 	SDL_RenderPresent(mRenderer);
 }

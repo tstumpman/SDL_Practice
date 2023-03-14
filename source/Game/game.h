@@ -17,8 +17,8 @@ public://Functions
 
 private://Functions
 	void processInput();
-	long long getDeltaTime(long long previousTimestamp, long long maxDelta);
-	void updateGame(long long deltaTime);
+	float getDeltaTime(float previousTimestamp, float currentTimestamp, float maxDelta);
+	void updateGame(float deltaTime);
 	void generateOutput();
 	void renderAudio();
 	void renderGraphics();
@@ -26,10 +26,16 @@ private://Functions
 	void logSdlError(std::vector<std::string> messages);
 
 private://Data
+	float minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
+	float maxDelta = 1.0f / 8.0f;//1/8th of a second
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer;
 	bool isRunning;
 	bool isQuitting;
+
+private://Temporary data for debugging purposes only
+	float objPosX;
+	float objPosY;
 protected:
 
 };
