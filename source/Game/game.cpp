@@ -1,6 +1,7 @@
 #include "game.h"
 #include "SDL/SDL.h"
 #include "../VideoConstants.h"
+#include "../MathConstants.h"
 
 using namespace std;
 
@@ -8,14 +9,10 @@ Game::Game() {
 	isQuitting = false;
 	isRunning = true;
 	mWindow = nullptr;
-	objPosX = 0.0f;
-	objPosY = 0.0f;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
-	rotation = 0.0f;
-	frequency = 1.0f;
-	amplitude = GBA_HEIGHT * 3 / 2.0f;
-
+	objects = vector<SineWaveObject>();
+	generateSomeObjects(10);
 }
 
 bool Game::initialize() {
@@ -126,19 +123,13 @@ void Game::processInput() {
 void Game::updateGame(float deltaTime) {
 	float screenWidth = GBA_WIDTH * 3.0f;
 	float screenHeight = GBA_HEIGHT * 3.0f;
-	
-	objPosX += (screenWidth) / 5.0f * deltaTime;
-	while (objPosX > screenWidth) {
-		objPosX -= screenWidth;
+	for (int i = 0; i < objects.size(); i++) {
+		if (!objects[i].getIsAlive()) {
+			randomizeObject(&objects[i]);
+		}
+		objects[i].update(deltaTime, screenWidth, screenHeight);
 	}
-	
-	rotation += deltaTime * frequency * RADIANS_PER_CIRCLE;
-	while (rotation > RADIANS_PER_CIRCLE) {
-		rotation -= RADIANS_PER_CIRCLE;
-	}
-	float currentPhase = cos(rotation);
-	float offset = screenHeight / 2.0f;
-	objPosY = amplitude * currentPhase + offset;
+
 }
 
 void Game::generateOutput() {
@@ -165,13 +156,41 @@ void Game::renderGraphics() {
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
-	SDL_SetRenderDrawColor(mRenderer,255,255,255,255);
-	SDL_Rect paddleRect = SDL_Rect();
-	paddleRect.h = windowHeight/10;
-	paddleRect.w = windowWidth/20;
-	paddleRect.x = objPosX - paddleRect.w/2.0f;
-	paddleRect.y = objPosY - paddleRect.h/2.0f;
-	SDL_RenderFillRect(mRenderer, &paddleRect);
+	for (int i = 0; i < objects.size(); i++) {
+		objects[i].render(mRenderer);
+	}
+
 	//Swap the front and backbuffers.
 	SDL_RenderPresent(mRenderer);
+}
+
+void Game::generateSomeObjects(int numObjects) {
+	srand(SDL_GetTicks());
+	int screenHeight = GBA_HEIGHT * 3;
+	int screenWidth = GBA_WIDTH * 3;
+	srand(SDL_GetTicks());
+
+	for (int i = 0; i < 10; i++) {
+		SineWaveObject obj = SineWaveObject();
+		objects.push_back(obj);
+	}
+}
+
+void Game::randomizeObject(SineWaveObject * obj) {
+	int screenHeight = GBA_HEIGHT * 3;
+	int screenWidth = GBA_WIDTH * 3;
+	obj->resetAll(
+		rand() % screenWidth,
+		rand() % screenHeight,
+		rand() % screenHeight,
+		rand() % screenWidth,
+		rand() % 10 + 30,
+		rand() % 10 + 30,
+		rand() % screenHeight,
+		rand() % 100 / 50.0f,
+		rand() % 5,
+		rand() % 255,
+		rand() % 255,
+		rand() % 255
+	);
 }

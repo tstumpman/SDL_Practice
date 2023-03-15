@@ -3,8 +3,9 @@
 
 #include <string>
 #include <vector>
-#define PI 3.14159265f
-#define RADIANS_PER_CIRCLE PI*2
+
+//Included for debugging the engine
+#include "SineWaveObject.h"
 
 //Forward Declarations
 struct SDL_Window;
@@ -35,11 +36,9 @@ private://Data
 	bool isQuitting;
 
 private://Temporary data for debugging purposes only
-	float objPosX;
-	float objPosY;
-	float rotation;
-	float frequency;
-	float amplitude;
+	std::vector<SineWaveObject> objects;
+	void generateSomeObjects(int numObjects);
+	void randomizeObject(SineWaveObject * obj);
 protected:
 
 };
