@@ -179,18 +179,17 @@ void Game::generateSomeObjects(int numObjects) {
 void Game::randomizeObject(SineWaveObject * obj) {
 	int screenHeight = GBA_HEIGHT * 3;
 	int screenWidth = GBA_WIDTH * 3;
+	uint8_t r = rand() % 255;
+	uint8_t g = rand() % 255;
+	uint8_t b = rand() % 255;
+	SDL_Color color = SDL_Color{ r, g, b, 255 };
 	obj->resetAll(
-		rand() % screenWidth,
-		rand() % screenHeight,
-		rand() % screenHeight,
-		rand() % screenWidth,
-		rand() % 10 + 30,
-		rand() % 10 + 30,
-		rand() % screenHeight,
-		rand() % 100 / 50.0f,
-		rand() % 5,
-		rand() % 255,
-		rand() % 255,
-		rand() % 255
+		rand() % screenHeight,//Anchor
+		(rand() % screenWidth) * 0.5,//speed
+		rand() % 10 + 30,//height
+		rand() % 10 + 30,//width
+		(rand() % screenHeight)*0.5f,//amplitude
+		rand() % 100 / 50.0f,//frequency
+		&color//color
 	);
 }

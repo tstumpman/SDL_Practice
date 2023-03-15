@@ -2,33 +2,37 @@
 #define SINE_WAVE_OBJECT
 
 class SDL_Renderer;
-typedef unsigned __int8 uint8_t;
+class SDL_Color;
 class SineWaveObject {
 public: 
+	//Default constructor
 	SineWaveObject();
+
+	//Copy Assignment operator
+	SineWaveObject& operator=(const SineWaveObject& other);
+
+	//Copy Constructor
+	SineWaveObject(const SineWaveObject & other);
+
+	//Destructor
+	~SineWaveObject();
+
 	void update(float deltaTime, float screenWidth, float screenHeight);
 	void render(SDL_Renderer* renderer);
 	void setEnabled(bool isEnabled);
 	void resetAll(
-		float startXPos,
-		float startYPos,
 		float anchor,
 		float speed,
 		float height,
 		float width,
 		float amplitude,
 		float frequency,
-		float lifetime,
-		uint8_t colorR,
-		uint8_t colorG,
-		uint8_t colorB
+		SDL_Color* color
 	);
 	bool getIsAlive();
 private: //Functions
 private:
-	uint8_t colorR;
-	uint8_t colorG;
-	uint8_t colorB;
+	SDL_Color* color;
 	float objPosX;
 	float objPosY;
 	float anchor;
@@ -37,8 +41,6 @@ private:
 	float speed;
 	float rotation;
 	float frequency;
-	float lifetime;
-	float elapsedTime;
 	float amplitude;
 	bool isAlive;
 };
