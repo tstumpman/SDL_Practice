@@ -164,11 +164,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Game\game.cpp" />
+    <ClCompile Include="source\Game\Paddle.cpp" />
     <ClCompile Include="source\Game\SineWaveObject.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Game\game.h" />
+    <ClInclude Include="source\Game\Paddle.h" />
     <ClInclude Include="source\Game\SineWaveObject.h" />
     <ClInclude Include="source\MathConstants.h" />
     <ClInclude Include="source\VideoConstants.h" />

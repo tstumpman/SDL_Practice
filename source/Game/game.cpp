@@ -19,6 +19,8 @@ bool Game::initialize() {
 	int sdlFlags = SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER;
 	int sdlResult = SDL_Init(sdlFlags);
 
+	SDL_Rect windowSize = SDL_Rect{ 0, 0, GBA_WIDTH * 3, GBA_HEIGHT * 3 };
+
 	if (sdlResult != 0) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
@@ -29,8 +31,8 @@ bool Game::initialize() {
 		"Window Title Goes Here",	//Window Title
 		100,						//Top Left X coord
 		100,						//Top Left Y coord
-		(GBA_WIDTH * 3),			//Window Width
-		(GBA_HEIGHT * 3),			//Window Height
+		windowSize.w,				//Window Width
+		windowSize.h,				//Window Height
 		sdlWindowOptions			//Window flags
 	);
 
@@ -50,7 +52,8 @@ bool Game::initialize() {
 		logSdlError(SDL_GetError());
 		return false;
 	}
-
+	generatePaddle(0, &windowSize);
+	generatePaddle(windowSize.w, &windowSize);
 	return true;
 }
 
@@ -118,6 +121,19 @@ void Game::processInput() {
 	if (keyboardState[SDL_SCANCODE_ESCAPE]) {
 		isRunning = false;
 	}
+
+
+	Paddle::DIRECTION direction = Paddle::DIRECTION::STOP;
+	if (keyboardState[SDL_SCANCODE_W]) {
+		direction = Paddle::DIRECTION::UP;
+	}
+	if (keyboardState[SDL_SCANCODE_S]) {
+		direction = Paddle::DIRECTION::DOWN;
+	}
+
+	for (int i = 0; i < paddles.size(); i++) {
+		paddles[i].processInput(direction);
+	}
 }
 
 void Game::updateGame(float deltaTime) {
@@ -128,6 +144,10 @@ void Game::updateGame(float deltaTime) {
 			randomizeObject(&objects[i]);
 		}
 		objects[i].update(deltaTime, screenWidth, screenHeight);
+	}
+
+	for (int i = 0; i < paddles.size(); i++) {
+		paddles[i].update(deltaTime);
 	}
 
 }
@@ -160,8 +180,31 @@ void Game::renderGraphics() {
 		objects[i].render(mRenderer);
 	}
 
+	for (int i = 0; i < paddles.size(); i++) {
+		paddles[i].render(mRenderer);
+	}
+
 	//Swap the front and backbuffers.
 	SDL_RenderPresent(mRenderer);
+}
+
+void Game::generatePaddle(int xPos, SDL_Rect* screenDimens) {
+	int paddleWidth = screenDimens->w / 20.0f;
+	int paddleHeight = screenDimens->h / 10.0f;
+	int yPos = screenDimens->h / 2.0f - paddleHeight/2.0f;
+	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
+	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	Paddle p = Paddle(
+		SDL_SCANCODE_W,
+		SDL_SCANCODE_S,
+		screenDimens,
+		&paddleShape,
+		&white,
+		screenDimens->h
+	);
+	p.setEnabled(true);
+	paddles.push_back(p);
+
 }
 
 void Game::generateSomeObjects(int numObjects) {
