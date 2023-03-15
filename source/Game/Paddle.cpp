@@ -4,8 +4,8 @@
 
 //Constructor
 Paddle::Paddle(
-	unsigned char upKeyboardCode,
-	unsigned char downKeyboardCode,
+	SDL_Scancode upKeyboardCode,
+	SDL_Scancode downKeyboardCode,
 	SDL_Rect* boundary,
 	SDL_Rect* paddleShape,
 	SDL_Color* color,
@@ -22,14 +22,23 @@ Paddle::Paddle(
 }
 
 void Paddle::initialize() {
-	color = new SDL_Color();
-	boundary = new SDL_Rect();
-	paddleShape = new SDL_Rect();
+	if (color == nullptr) {
+		color = new SDL_Color();
+	}
+
+	if (boundary == nullptr) {
+		boundary = new SDL_Rect();
+	}
+
+	if (paddleShape == nullptr) {
+		paddleShape = new SDL_Rect();
+	}
+
 	isAlive = false;
 	currentDirection = DIRECTION::STOP;
-	upKeyboardCode = 0;
-	downKeyboardCode = 0;
-	float speed;
+	upKeyboardCode = SDL_SCANCODE_W;
+	downKeyboardCode = SDL_SCANCODE_S;
+	speed = 0.0f;
 }
 
 //Copy Assignment operator
@@ -39,6 +48,8 @@ Paddle& Paddle::operator=(const Paddle& other) {
 		*(this->boundary) = *(other.boundary);
 		*(this->paddleShape) = *(other.paddleShape);
 		this->currentDirection = other.currentDirection;
+		this->upKeyboardCode = other.upKeyboardCode;
+		this->downKeyboardCode = other.downKeyboardCode;
 		this->speed = other.speed;
 		this->isAlive = other.isAlive;
 	}
@@ -51,19 +62,23 @@ Paddle::Paddle(const Paddle& other) {
 	*(this->color) = *(other.color);
 	*(this->boundary) = *(other.boundary);
 	*(this->paddleShape) = *(other.paddleShape);
+	this->upKeyboardCode = other.upKeyboardCode;
+	this->downKeyboardCode = other.downKeyboardCode;
 	this->currentDirection = other.currentDirection;
 	this->speed = other.speed;
-	this->color->r = other.color->r;
-	this->color->g = other.color->g;
-	this->color->b = other.color->b;
 	this->isAlive = other.isAlive;
 }
 
 //Destructor
 Paddle::~Paddle() {
 	delete this->color;
+	this->color = nullptr;
+
 	delete this->boundary;
+	this->boundary = nullptr;
+
 	delete this->paddleShape;
+	this->paddleShape = nullptr;
 }
 
 void Paddle::setEnabled(bool isEnabled) {
@@ -75,7 +90,15 @@ void Paddle::setBoundary(SDL_Rect* boundary) {
 }
 
 
-void Paddle::processInput(DIRECTION direction) {
+void Paddle::processInput() {
+	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+	Paddle::DIRECTION direction = Paddle::DIRECTION::STOP;
+	if (keyboardState[upKeyboardCode]) {
+		direction = Paddle::DIRECTION::UP;
+	}
+	if (keyboardState[downKeyboardCode]) {
+		direction = Paddle::DIRECTION::DOWN;
+	}
 	currentDirection = direction;
 }
 

@@ -1,6 +1,6 @@
 #ifndef C_PADDLE
 #define C_PADDLE
-
+#include "SDL/SDL_scancode.h"
 class SDL_Renderer;
 class SDL_Color;
 class SDL_Rect;
@@ -8,8 +8,8 @@ class Paddle {
 public: 
 	//Default constructor
 	Paddle(
-		unsigned char upKeyboardCode,
-		unsigned char downKeyboardCode,
+		SDL_Scancode upKeyboardCode,
+		SDL_Scancode downKeyboardCode,
 		SDL_Rect* boundary,
 		SDL_Rect* paddleShape,
 		SDL_Color* color,
@@ -33,7 +33,7 @@ public:
 
 	void update(float deltaTime);
 	void setBoundary(SDL_Rect* boundary);
-	void processInput(DIRECTION direction);
+	void processInput();
 	void render(SDL_Renderer* renderer);
 	void setEnabled(bool isEnabled);
 	bool getIsAlive();
@@ -44,12 +44,12 @@ private: //Functions
 	void initialize();
 
 private:
-	SDL_Color* color;
-	SDL_Rect* boundary;
-	SDL_Rect* paddleShape;
+	SDL_Color* color = nullptr;
+	SDL_Rect* boundary = nullptr;
+	SDL_Rect* paddleShape = nullptr;
 	bool isAlive;
 	DIRECTION currentDirection;
-	unsigned char upKeyboardCode, downKeyboardCode;
+	SDL_Scancode upKeyboardCode, downKeyboardCode;
 	float speed;
 };
 

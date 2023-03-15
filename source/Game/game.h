@@ -40,7 +40,7 @@ private://Temporary data for debugging purposes only
 	std::vector<SineWaveObject> objects;
 	std::vector<Paddle> paddles;
 	void generateSomeObjects(int numObjects);
-	void generatePaddle(int xPos, SDL_Rect* screenDimens);
+	void generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL_Scancode down);
 	void randomizeObject(SineWaveObject * obj);
 protected:
 

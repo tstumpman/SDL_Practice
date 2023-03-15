@@ -52,8 +52,8 @@ bool Game::initialize() {
 		logSdlError(SDL_GetError());
 		return false;
 	}
-	generatePaddle(0, &windowSize);
-	generatePaddle(windowSize.w, &windowSize);
+	generatePaddle(0, &windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
+	generatePaddle(windowSize.w, &windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K );
 	return true;
 }
 
@@ -122,17 +122,8 @@ void Game::processInput() {
 		isRunning = false;
 	}
 
-
-	Paddle::DIRECTION direction = Paddle::DIRECTION::STOP;
-	if (keyboardState[SDL_SCANCODE_W]) {
-		direction = Paddle::DIRECTION::UP;
-	}
-	if (keyboardState[SDL_SCANCODE_S]) {
-		direction = Paddle::DIRECTION::DOWN;
-	}
-
 	for (int i = 0; i < paddles.size(); i++) {
-		paddles[i].processInput(direction);
+		paddles[i].processInput();
 	}
 }
 
@@ -188,15 +179,15 @@ void Game::renderGraphics() {
 	SDL_RenderPresent(mRenderer);
 }
 
-void Game::generatePaddle(int xPos, SDL_Rect* screenDimens) {
+void Game::generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL_Scancode down) {
 	int paddleWidth = screenDimens->w / 20.0f;
 	int paddleHeight = screenDimens->h / 10.0f;
 	int yPos = screenDimens->h / 2.0f - paddleHeight/2.0f;
 	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
 	Paddle p = Paddle(
-		SDL_SCANCODE_W,
-		SDL_SCANCODE_S,
+		up,
+		down,
 		screenDimens,
 		&paddleShape,
 		&white,
