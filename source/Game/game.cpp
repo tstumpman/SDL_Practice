@@ -2,7 +2,6 @@
 #include "SDL/SDL.h"
 #include "../VideoConstants.h"
 #include "../MathConstants.h"
-
 using namespace std;
 
 Game::Game() {

@@ -7,6 +7,7 @@
 //Included for debugging the engine
 #include "SineWaveObject.h"
 #include "Paddle.h"
+#include "SDL/SDL_scancode.h"
 
 //Forward Declarations
 struct SDL_Window;

@@ -4,8 +4,8 @@
 
 //Constructor
 Paddle::Paddle(
-	SDL_Scancode upKeyboardCode,
-	SDL_Scancode downKeyboardCode,
+	unsigned char upKeyboardCode,
+	unsigned char downKeyboardCode,
 	SDL_Rect* boundary,
 	SDL_Rect* paddleShape,
 	SDL_Color* color,
