@@ -44,5 +44,8 @@
     <ClInclude Include="source\Game\Paddle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Game\IGameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

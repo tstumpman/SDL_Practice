@@ -1,9 +1,10 @@
 #ifndef C_PADDLE
 #define C_PADDLE
+#include "IGameObject.h"
 class SDL_Renderer;
 class SDL_Color;
 class SDL_Rect;
-class Paddle {
+class Paddle : public IGameObject {
 public: 
 	//Default constructor
 	Paddle(
@@ -30,13 +31,11 @@ public:
 		DOWN = 1,
 	};
 
-	void update(float deltaTime);
-	void setBoundary(SDL_Rect* boundary);
-	void processInput();
-	void render(SDL_Renderer* renderer);
-	void setEnabled(bool isEnabled);
-	bool getIsAlive();
-
+	virtual void update(float deltaTime) override;
+	virtual void render(SDL_Renderer* renderer) override;
+	virtual void setIsAlive(bool isEnabled) override;
+	virtual void processInput() override;
+	virtual bool getIsAlive() const override;
 
 private: //Functions
 	Paddle();

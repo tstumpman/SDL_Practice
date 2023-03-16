@@ -3,100 +3,134 @@
 #include "SDL/SDL.h"
 
 //Constructor
-SineWaveObject::SineWaveObject() {
-	this->objPosX = 0;
-	this->objPosY = 0;
-	this->anchor = 0;
-	this->height = 0;
-	this->width = 0;
-	this->amplitude = 0;
-	this->frequency = 0;
-	this->speed = 0;
-	this->color = new SDL_Color{ 255,255, 255, 255 };
-	this->rotation = 0.0f;
-	this->isAlive = false;
+SineWaveObject::SineWaveObject(
+	float anchor,
+	float speed,
+	float amplitude,
+	float frequency,
+	SDL_Rect* shape,
+	SDL_Rect* boundary,
+	SDL_Color* color
+)
+{
+	initialize(
+		anchor,
+		speed,
+		amplitude,
+		frequency,
+		shape,
+		boundary,
+		color
+	);
 }
 
 //Copy Assignment operator
 SineWaveObject& SineWaveObject::operator=(const SineWaveObject& other) {
 	if (this != &other) {
-		this->objPosX = other.objPosX;
-		this->objPosY = other.objPosY;
-		this->anchor = other.anchor;
-		this->height = other.height;
-		this->width = other.width;
-		this->amplitude = other.amplitude;
-		this->frequency = other.frequency;
-		this->speed = other.speed;
-		this->color->r = other.color->r;
-		this->color->g = other.color->g;
-		this->color->b = other.color->b;
-		this->rotation = other.rotation;
-		this->isAlive = other.isAlive;
+	initialize(
+		other.anchor,
+		other.speed,
+		other.amplitude,
+		other.frequency,
+		other.shape,
+		other.boundary,
+		other.color
+	);
+	this->isAlive = other.isAlive;
+	this->rotation = other.rotation;
 	}
 	return *this;
 }
 
 //Copy Constructor
 SineWaveObject::SineWaveObject(const SineWaveObject& other) {
-	color = new SDL_Color();
-	this->objPosX = other.objPosX;
-	this->objPosY = other.objPosY;
-	this->anchor = other.anchor;
-	this->height = other.height;
-	this->width = other.width;
-	this->amplitude = other.amplitude;
-	this->frequency = other.frequency;
-	this->speed = other.speed;
-	this->color->r = other.color->r;
-	this->color->g = other.color->g;
-	this->color->b = other.color->b;
-	this->rotation = other.rotation;
+	initialize(
+		other.anchor,
+		other.speed,
+		other.amplitude,
+		other.frequency,
+		other.shape,
+		other.boundary,
+		other.color
+	);
 	this->isAlive = other.isAlive;
+	this->rotation = other.rotation;
 }
+
 
 //Destructor
 SineWaveObject::~SineWaveObject() {
-	delete this->color;
+	if (this->color != nullptr) {
+		delete this->color;
+		this->color = nullptr;
+	}
+	if (this->shape != nullptr) {
+		delete this->shape;
+		this->shape = nullptr;
+	}
+	if (this->boundary != nullptr) {
+		delete this->boundary;
+		this->boundary = nullptr;
+	}
 }
 
-void SineWaveObject::setEnabled(bool isEnabled) {
+void SineWaveObject::setIsAlive(bool isEnabled) {
 	this->isAlive = isEnabled;
 }
 
-void SineWaveObject::resetAll(
+void SineWaveObject::initialize(
 	float anchor,
 	float speed,
-	float height,
-	float width,
 	float amplitude,
 	float frequency,
+	SDL_Rect* shape,
+	SDL_Rect* boundary,
 	SDL_Color* color
 ) {
-	if (speed < 0) {
-		speed *= -1;
+	if (this->shape == nullptr) {
+		this->shape = new SDL_Rect();
 	}
-	this->objPosX = 0-width/2;
-	this->objPosY = anchor - height/2;
-	this->anchor = anchor;
-	this->height = height;
-	this->width = width;
+
+	if (this->boundary == nullptr) {
+		this->boundary = new SDL_Rect();
+	}
+
+	if (this->color == nullptr) {
+		this->color = new SDL_Color();
+	}
+	*(this->shape) = *shape;
+	*(this->boundary) = *boundary;
+	*(this->color) = *color;
+
 	this->amplitude = amplitude;
 	this->frequency = frequency;
 	this->speed = speed;
-	this->color->r = color->r;
-	this->color->g = color->g;
-	this->color->b = color->b;
+	this->anchor = anchor;
+
 	this->rotation = 0.0f;
-	this->setEnabled(true);
+	this->setIsAlive(true);
 }
 
-void SineWaveObject::update(float deltaTime, float screenWidth, float screenHeight) {
+void SineWaveObject::update(float deltaTime) {
 
 	if (isAlive) {
-		objPosX += speed * deltaTime;
-		if (objPosX - width/2 > screenWidth) {
-			isAlive = false;
+		shape->x += speed * deltaTime;
+
+		if (speed > 1) {
+			if (shape->x + 0 > boundary->w) {
+				speed = speed * -1.0f;
+			}
+		}
+		else if (speed < -1) {
+			if (shape->x + shape->w < boundary->x) {
+				speed = speed * -1.0f;
+			}
+		}
+		else {
+			shape->x = 0;
+			shape->y = 0;
+			anchor = boundary->h / 2;
+			speed = 10;
 		}
 
 		rotation += deltaTime * frequency * RADIANS_PER_CIRCLE;
@@ -104,23 +138,17 @@ void SineWaveObject::update(float deltaTime, float screenWidth, float screenHeig
 			rotation -= RADIANS_PER_CIRCLE;
 		}
 		float currentPhase = cos(rotation);
-		objPosY = amplitude * currentPhase + anchor;
+		shape->y = amplitude * currentPhase + anchor - shape->h / 2;
 	}
 }
 
-bool SineWaveObject::getIsAlive() {
+bool SineWaveObject::getIsAlive() const {
 	return this->isAlive;
 }
 
 void SineWaveObject::render(SDL_Renderer* renderer) {
 	if (!isAlive)
 		return;
-	float alpha = 255;
 	SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
-	SDL_Rect paddleRect = SDL_Rect();
-	paddleRect.h = height;
-	paddleRect.w = width;
-	paddleRect.x = objPosX - paddleRect.w / 2.0f;
-	paddleRect.y = objPosY - paddleRect.h / 2.0f;
-	SDL_RenderFillRect(renderer, &paddleRect);
+	SDL_RenderFillRect(renderer, shape);
 }

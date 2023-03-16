@@ -170,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Game\game.h" />
+    <ClInclude Include="source\Game\IGameObject.h" />
     <ClInclude Include="source\Game\Paddle.h" />
     <ClInclude Include="source\Game\SineWaveObject.h" />
     <ClInclude Include="source\MathConstants.h" />

@@ -15,11 +15,21 @@ class SDL_Renderer;
 class Game {
 public://Functions
 	Game();
+
+
+	//Destructor
+	~Game();
 	bool initialize();
 	void runLoop();
 	void shutdown();
 
 private://Functions
+	//Copy Assignment operator
+	Game& operator=(const Game& other) {};
+
+	//Copy Constructor
+	Game(const Game& other) {};
+
 	void processInput();
 	float getDeltaTime(float previousTimestamp, float currentTimestamp, float maxDelta);
 	void updateGame(float deltaTime);
@@ -38,11 +48,10 @@ private://Data
 	bool isQuitting;
 
 private://Temporary data for debugging purposes only
-	std::vector<SineWaveObject> objects;
-	std::vector<Paddle> paddles;
+	std::vector<IGameObject*> gameObjects;
 	void generateSomeObjects(int numObjects);
 	void generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL_Scancode down);
-	void randomizeObject(SineWaveObject * obj);
+	SineWaveObject generateParticle();
 protected:
 
 };

@@ -10,8 +10,13 @@ Game::Game() {
 	mWindow = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
-	objects = vector<SineWaveObject>();
-	generateSomeObjects(10);
+	gameObjects = std::vector<IGameObject*>();
+}
+Game::~Game() {
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		delete gameObjects[i];
+		gameObjects[i] = nullptr;
+	}
 }
 
 bool Game::initialize() {
@@ -51,6 +56,8 @@ bool Game::initialize() {
 		logSdlError(SDL_GetError());
 		return false;
 	}
+	generateSomeObjects(10);
+
 	generatePaddle(0, &windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generatePaddle(windowSize.w, &windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K );
 	return true;
@@ -121,25 +128,15 @@ void Game::processInput() {
 		isRunning = false;
 	}
 
-	for (int i = 0; i < paddles.size(); i++) {
-		paddles[i].processInput();
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		gameObjects[i]->processInput();
 	}
 }
 
 void Game::updateGame(float deltaTime) {
-	float screenWidth = GBA_WIDTH * 3.0f;
-	float screenHeight = GBA_HEIGHT * 3.0f;
-	for (int i = 0; i < objects.size(); i++) {
-		if (!objects[i].getIsAlive()) {
-			randomizeObject(&objects[i]);
-		}
-		objects[i].update(deltaTime, screenWidth, screenHeight);
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		gameObjects[i]->update(deltaTime);
 	}
-
-	for (int i = 0; i < paddles.size(); i++) {
-		paddles[i].update(deltaTime);
-	}
-
 }
 
 void Game::generateOutput() {
@@ -166,12 +163,8 @@ void Game::renderGraphics() {
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
-	for (int i = 0; i < objects.size(); i++) {
-		objects[i].render(mRenderer);
-	}
-
-	for (int i = 0; i < paddles.size(); i++) {
-		paddles[i].render(mRenderer);
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		gameObjects[i]->render(mRenderer);
 	}
 
 	//Swap the front and backbuffers.
@@ -184,7 +177,7 @@ void Game::generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL
 	int yPos = screenDimens->h / 2.0f - paddleHeight/2.0f;
 	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
-	Paddle p = Paddle(
+	Paddle* p = new Paddle(
 		up,
 		down,
 		screenDimens,
@@ -192,37 +185,36 @@ void Game::generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL
 		&white,
 		screenDimens->h
 	);
-	p.setEnabled(true);
-	paddles.push_back(p);
+	p->setIsAlive(true);
+	gameObjects.push_back(p);
 
 }
 
 void Game::generateSomeObjects(int numObjects) {
 	srand(SDL_GetTicks());
-	int screenHeight = GBA_HEIGHT * 3;
-	int screenWidth = GBA_WIDTH * 3;
-	srand(SDL_GetTicks());
 
-	for (int i = 0; i < 10; i++) {
-		SineWaveObject obj = SineWaveObject();
-		objects.push_back(obj);
+	for (unsigned int i = 0; i < numObjects; i++) {
+		SineWaveObject * obj = new SineWaveObject(generateParticle());
+		gameObjects.push_back(obj);
 	}
 }
 
-void Game::randomizeObject(SineWaveObject * obj) {
+SineWaveObject Game::generateParticle() {
 	int screenHeight = GBA_HEIGHT * 3;
 	int screenWidth = GBA_WIDTH * 3;
 	uint8_t r = rand() % 255;
 	uint8_t g = rand() % 255;
 	uint8_t b = rand() % 255;
 	SDL_Color color = SDL_Color{ r, g, b, 255 };
-	obj->resetAll(
+	SDL_Rect shape = SDL_Rect{ rand() % screenHeight, 0, rand() % 10 + 30, rand() % 10 + 30 };
+	SDL_Rect boundary = SDL_Rect{ 0, 0, screenWidth, screenHeight };
+	return SineWaveObject(
 		rand() % screenHeight,//Anchor
-		(rand() % screenWidth) * 0.5,//speed
-		rand() % 10 + 30,//height
-		rand() % 10 + 30,//width
+		(rand() % screenWidth) * 0.5 +1.0f,//speed
 		(rand() % screenHeight)*0.5f,//amplitude
 		rand() % 100 / 50.0f,//frequency
+		&shape,//height
+		&boundary,//width
 		&color//color
 	);
 }

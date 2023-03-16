@@ -81,12 +81,8 @@ Paddle::~Paddle() {
 	this->paddleShape = nullptr;
 }
 
-void Paddle::setEnabled(bool isEnabled) {
+void Paddle::setIsAlive(bool isEnabled) {
 	this->isAlive = isEnabled;
-}
-
-void Paddle::setBoundary(SDL_Rect* boundary) {
-	*(this->boundary) = *boundary;
 }
 
 
@@ -119,7 +115,7 @@ void Paddle::update(float deltaTime) {
 	}
 }
 
-bool Paddle::getIsAlive() {
+bool Paddle::getIsAlive() const {
 	return this->isAlive;
 }
 

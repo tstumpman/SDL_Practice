@@ -1,43 +1,57 @@
 #ifndef SINE_WAVE_OBJECT
 #define SINE_WAVE_OBJECT
+#include "IGameObject.h"
 
 class SDL_Renderer;
 class SDL_Color;
-class SineWaveObject {
-public: 
+class SDL_Rect;
+
+class SineWaveObject : public IGameObject {
+public:
 	//Default constructor
-	SineWaveObject();
+	SineWaveObject(
+		float anchor,
+		float speed,
+		float amplitude,
+		float frequency,
+		SDL_Rect* shape,
+		SDL_Rect* boundary,
+		SDL_Color* color
+	);
 
 	//Copy Assignment operator
 	SineWaveObject& operator=(const SineWaveObject& other);
 
 	//Copy Constructor
-	SineWaveObject(const SineWaveObject & other);
+	SineWaveObject(const SineWaveObject& other);
 
 	//Destructor
 	~SineWaveObject();
 
-	void update(float deltaTime, float screenWidth, float screenHeight);
-	void render(SDL_Renderer* renderer);
-	void setEnabled(bool isEnabled);
-	void resetAll(
+	virtual void update(float deltaTime) override;
+	virtual void render(SDL_Renderer* renderer) override;
+	virtual void setIsAlive(bool isEnabled) override;
+	virtual void processInput() override {};
+	virtual bool getIsAlive() const override;
+
+	void initialize(
 		float anchor,
 		float speed,
-		float height,
-		float width,
 		float amplitude,
 		float frequency,
+		SDL_Rect* shape,
+		SDL_Rect* boundary,
 		SDL_Color* color
 	);
-	bool getIsAlive();
+
 private: //Functions
+	SineWaveObject();
+
 private:
 	SDL_Color* color;
-	float objPosX;
-	float objPosY;
+	SDL_Rect* shape;
+	SDL_Rect* boundary;
 	float anchor;
-	float height;
-	float width;
 	float speed;
 	float rotation;
 	float frequency;
