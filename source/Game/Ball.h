@@ -1,11 +1,12 @@
 #ifndef C_BALL
 #define C_BALL
 #include "IGameObject.h"
+#include "ICollideable.h"
 #include "Vector2D.h"
 class SDL_Renderer;
 class SDL_Color;
-
-class Ball : public IGameObject {
+class Paddle;
+class Ball : public IGameObject, public ICollideable {
 public: 
 	//Default constructor
 	Ball(
@@ -32,10 +33,15 @@ public:
 	virtual void setIsAlive(bool isEnabled) override;
 	virtual void processInput() override;
 	virtual bool getIsAlive() const override;
+public://ICollideable overrides
+	virtual bool collidesWith(const ICollideable* other) const override;
+	virtual void resolveCollision( ICollideable* other) override;
+	virtual void getCollisionRect(Vector2D& topLeft, Vector2D& size) const override;
 
 private: //Functions
 	Ball();
 	void initialize();
+	void handlePaddleCollision(Paddle * other);
 
 private:
 	SDL_Color* color = nullptr;

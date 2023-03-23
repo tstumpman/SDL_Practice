@@ -1,6 +1,7 @@
 #include "Ball.h"
 #include "../MathConstants.h"
 #include "SDL/SDL.h"
+#include "Paddle.h"
 
 //Constructor
 Ball::Ball(
@@ -106,4 +107,34 @@ void Ball::render(SDL_Renderer* renderer) {
 		int(size.getX())
 	};
 	SDL_RenderFillRect(renderer, &renderRect);
+}
+
+bool Ball::collidesWith(const ICollideable* other) const {
+	Vector2D otherTopLeft;
+	Vector2D otherSize;
+	other->getCollisionRect(otherTopLeft, otherSize);
+	// Check if the rectangles intersect in the X-axis
+	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth()/2) > otherTopLeft.getX());
+
+	// Check if the rectangles intersect in the Y-axis
+	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight()/2) > otherTopLeft.getY());
+
+	// Return true if both X-axis and Y-axis overlaps
+	return xOverlap && yOverlap;
+
+}
+
+void Ball::resolveCollision(ICollideable* other) {
+	//Ball can collide with a paddle and a bullet
+	Paddle* paddle = dynamic_cast<Paddle*>(other);
+	if (paddle) {
+		if (velocity.dotProduct(paddle->getNormal()) < 0.0f) {
+			velocity = velocity.getReflection(paddle->getNormal());
+		}
+	}
+}
+
+void Ball::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
+	topLeft = (this->position - (this->size * 0.5f));
+	size = this->size;
 }

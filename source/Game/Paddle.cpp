@@ -9,6 +9,7 @@ Paddle::Paddle(
 	Vector2D screenSize,
 	Vector2D size,
 	Vector2D position,
+	Vector2D normal,
 	SDL_Color* color,
 	float speed
 ) {
@@ -17,6 +18,7 @@ Paddle::Paddle(
 	this->downKeyboardCode = downKeyboardCode;
 	this->speed = speed;
 	this->screenSize = screenSize;
+	this->normal = normal;
 	this->size = size;
 	this->position = position;
 	*(this->color) = *(color);
@@ -29,6 +31,8 @@ void Paddle::initialize() {
 	}
 	screenSize = Vector2D();
 	size = Vector2D();
+	position = Vector2D();
+	normal = Vector2D(1,0);
 
 	isAlive = false;
 	currentDirection = DIRECTION::STOP;
@@ -48,6 +52,7 @@ Paddle& Paddle::operator=(const Paddle& other) {
 		this->screenSize = other.screenSize;
 		this->size = other.size;
 		this->position = other.position;
+		this->normal = other.normal;
 		this->isAlive = other.isAlive;
 	}
 	return *this;
@@ -56,15 +61,7 @@ Paddle& Paddle::operator=(const Paddle& other) {
 //Copy Constructor
 Paddle::Paddle(const Paddle& other) {
 	initialize();
-	*(this->color) = *(other.color);
-	this->upKeyboardCode = other.upKeyboardCode;
-	this->downKeyboardCode = other.downKeyboardCode;
-	this->currentDirection = other.currentDirection;
-	this->speed = other.speed;
-	this->screenSize = other.screenSize;
-	this->size = other.size;
-	this->position = other.position;
-	this->isAlive = other.isAlive;
+	(*this) = other;
 }
 
 //Destructor
@@ -90,6 +87,30 @@ void Paddle::processInput() {
 	currentDirection = direction;
 }
 
+bool Paddle::collidesWith(const ICollideable* other) const {
+	Vector2D otherTopLeft;
+	Vector2D otherSize;
+	other->getCollisionRect(otherTopLeft, otherSize);
+	// Check if the rectangles intersect in the X-axis
+	bool xOverlap = (position.getX() < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth()) > otherTopLeft.getX());
+
+	// Check if the rectangles intersect in the Y-axis
+	bool yOverlap = (position.getY() < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight()) > otherTopLeft.getY());
+
+	// Return true if both X-axis and Y-axis overlaps
+	return xOverlap && yOverlap;
+
+}
+
+void Paddle::resolveCollision( ICollideable* other) {
+	//Paddle can collide with a ball and a bullet, but it only cares if it collides with a bullet.
+}
+
+void Paddle::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
+	topLeft = (this->position - (this->size * 0.5f));
+	size = this->size;
+}
+
 void Paddle::update(float deltaTime) {
 	if (!isAlive) return;
 	Vector2D yAxis = Vector2D(0, 1);
@@ -112,4 +133,8 @@ void Paddle::render(SDL_Renderer* renderer) {
 		int(size.getX())
 	};
 	SDL_RenderFillRect(renderer, &renderRect);
+}
+
+Vector2D Paddle::getNormal() {
+	return normal;
 }

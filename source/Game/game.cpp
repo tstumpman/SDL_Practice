@@ -65,9 +65,9 @@ bool Game::initialize() {
 	}
 	//generateSomeObjects(10);
 
-	generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
+	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generateBall(windowSize);
-	generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
+	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	return true;
 }
 
@@ -145,6 +145,12 @@ void Game::updateGame(float deltaTime) {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->update(deltaTime);
 	}
+	if (gameBall->collidesWith(leftPaddle)){
+		gameBall->resolveCollision(leftPaddle);
+	}
+	if (gameBall->collidesWith(rightPaddle)) {
+		gameBall->resolveCollision(rightPaddle);
+	}
 }
 
 void Game::generateOutput() {
@@ -164,10 +170,10 @@ void Game::renderGraphics() {
 	//clear the backbuffer
 	SDL_SetRenderDrawColor(
 		mRenderer,	//
-		255,		//R
+		0,		//R
 		0,			//G
-		255,		//B
-		255			//A
+		0,		//B
+		0			//A
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
@@ -180,41 +186,45 @@ void Game::renderGraphics() {
 }
 
 void Game::generateBall(Vector2D screenSize) {
-	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	SDL_Color white = SDL_Color{ 255, 128, 0, 255 };
 
-	Ball* b = new Ball(
-		Vector2D(0,0),//top left
-		screenSize,//bottom right
+	gameBall = new Ball(
+		Vector2D(-50, 0),//top left
+		Vector2D(screenSize.getX()+50, screenSize.getY()),//bottom right
 		screenSize * 0.05f,//size
 		screenSize * 0.5f,//position
 		Vector2D(rand() % 1000, rand() % 1000),//velocity
 		&white,
-		screenSize.getWidth()/2
+		screenSize.getWidth()/2.0f
 	);
-	b->setIsAlive(true);
-	gameObjects.push_back(b);
+	gameBall->setIsAlive(true);
+
+	gameObjects.push_back(gameBall);
 }
 
-void Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
+Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
 
 	int paddleWidth = screenSize.getWidth() / 20.0f;
 	int paddleHeight = screenSize.getHeight() / 10.0f;
 	int yPos = screenSize.getHeight() / 2.0f - paddleHeight / 2.0f;
 	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
 	SDL_Rect screenDimens = SDL_Rect{ 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight()};
-	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	SDL_Color white = SDL_Color{ 128, 0, 255, 255 };
+	Vector2D centerDot = screenSize * 0.5f;
+	Vector2D paddleNormal = (centerDot - Vector2D(xPos, centerDot.getY())).getNormal();
 	Paddle* p = new Paddle(
 		up,
 		down,
 		screenSize,
 		Vector2D(paddleWidth, paddleHeight),
 		Vector2D(xPos, screenSize.getHeight()/2),
+		paddleNormal,
 		&white,
 		screenSize.getHeight()
 	);
 	p->setIsAlive(true);
 	gameObjects.push_back(p);
-
+	return p;
 }
 
 void Game::generateSomeObjects(int numObjects) {

@@ -56,6 +56,14 @@ void Vector2D::clamp(const Vector2D& minimum, const Vector2D& maximum) {
 	y = y + deltaVector.y;
 }
 
+Vector2D& Vector2D::operator=(const Vector2D& other) {
+	if (this != &other) {
+		this->x = other.x;
+		this->y = other.y;
+	}
+	return *this;
+}
+
 Vector2D Vector2D::vectorToBounds(const Vector2D& minimum, const Vector2D& maximum) const {
 	float deltaX = 0.0f;
 	float deltaY = 0.0f;
@@ -76,10 +84,10 @@ Vector2D Vector2D::vectorToBounds(const Vector2D& minimum, const Vector2D& maxim
 		deltaY = minimum.y - y;
 	}
 
-	if (minimum.x > maximum.x || maximum.x < minimum.x) {
+	if (minimum.x > maximum.x ) {
 		deltaX = 0;
 	}
-	if (minimum.y > maximum.y || maximum.y < minimum.y) {
+	if (minimum.y > maximum.y ) {
 		deltaY = 0;
 	}
 

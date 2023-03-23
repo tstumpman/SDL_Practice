@@ -7,6 +7,7 @@
 //Included for debugging the engine
 #include "SineWaveObject.h"
 #include "Paddle.h"
+#include "Ball.h"
 #include "SDL/SDL_scancode.h"
 #include "Vector2d.h"
 
@@ -50,8 +51,11 @@ private://Data
 
 private://Temporary data for debugging purposes only
 	std::vector<IGameObject*> gameObjects;
+	Ball* gameBall;
+	Paddle* leftPaddle;
+	Paddle* rightPaddle;
 	void generateSomeObjects(int numObjects);
-	void generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
+	Paddle* generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
 	void generateBall(Vector2D screenSize);
 	SineWaveObject generateParticle();
 protected:
