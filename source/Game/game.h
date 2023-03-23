@@ -8,6 +8,7 @@
 #include "SineWaveObject.h"
 #include "Paddle.h"
 #include "SDL/SDL_scancode.h"
+#include "Vector2d.h"
 
 //Forward Declarations
 struct SDL_Window;
@@ -50,7 +51,8 @@ private://Data
 private://Temporary data for debugging purposes only
 	std::vector<IGameObject*> gameObjects;
 	void generateSomeObjects(int numObjects);
-	void generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL_Scancode down);
+	void generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
+	void generateBall(Vector2D screenSize);
 	SineWaveObject generateParticle();
 protected:
 

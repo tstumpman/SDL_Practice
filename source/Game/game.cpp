@@ -2,6 +2,8 @@
 #include "SDL/SDL.h"
 #include "../VideoConstants.h"
 #include "../MathConstants.h"
+#include "Ball.h"
+#include "Vector2DTest.h"
 using namespace std;
 
 Game::Game() {
@@ -23,7 +25,7 @@ bool Game::initialize() {
 	int sdlFlags = SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER;
 	int sdlResult = SDL_Init(sdlFlags);
 
-	SDL_Rect windowSize = SDL_Rect{ 0, 0, GBA_WIDTH * 3, GBA_HEIGHT * 3 };
+	Vector2D windowSize = Vector2D(GBA_WIDTH * 3, GBA_HEIGHT * 3 );
 
 	if (sdlResult != 0) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -35,8 +37,8 @@ bool Game::initialize() {
 		"Window Title Goes Here",	//Window Title
 		100,						//Top Left X coord
 		100,						//Top Left Y coord
-		windowSize.w,				//Window Width
-		windowSize.h,				//Window Height
+		windowSize.getWidth(),		//Window Width
+		windowSize.getHeight(),		//Window Height
 		sdlWindowOptions			//Window flags
 	);
 
@@ -56,10 +58,16 @@ bool Game::initialize() {
 		logSdlError(SDL_GetError());
 		return false;
 	}
-	generateSomeObjects(10);
+	Vector2DTest vectortest = Vector2DTest();
+	int vectorErrors = vectortest.runTests();
+	if (vectorErrors != 0) {
+		return false;
+	}
+	//generateSomeObjects(10);
 
-	generatePaddle(0, &windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
-	generatePaddle(windowSize.w, &windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K );
+	generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
+	generateBall(windowSize);
+	generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	return true;
 }
 
@@ -171,19 +179,38 @@ void Game::renderGraphics() {
 	SDL_RenderPresent(mRenderer);
 }
 
-void Game::generatePaddle(int xPos, SDL_Rect* screenDimens, SDL_Scancode up, SDL_Scancode down) {
-	int paddleWidth = screenDimens->w / 20.0f;
-	int paddleHeight = screenDimens->h / 10.0f;
-	int yPos = screenDimens->h / 2.0f - paddleHeight/2.0f;
+void Game::generateBall(Vector2D screenSize) {
+	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+
+	Ball* b = new Ball(
+		Vector2D(0,0),//top left
+		screenSize,//bottom right
+		screenSize * 0.05f,//size
+		screenSize * 0.5f,//position
+		Vector2D(rand() % 1000, rand() % 1000),//velocity
+		&white,
+		screenSize.getWidth()/2
+	);
+	b->setIsAlive(true);
+	gameObjects.push_back(b);
+}
+
+void Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
+
+	int paddleWidth = screenSize.getWidth() / 20.0f;
+	int paddleHeight = screenSize.getHeight() / 10.0f;
+	int yPos = screenSize.getHeight() / 2.0f - paddleHeight / 2.0f;
 	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
+	SDL_Rect screenDimens = SDL_Rect{ 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight()};
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
 	Paddle* p = new Paddle(
 		up,
 		down,
-		screenDimens,
-		&paddleShape,
+		screenSize,
+		Vector2D(paddleWidth, paddleHeight),
+		Vector2D(xPos, screenSize.getHeight()/2),
 		&white,
-		screenDimens->h
+		screenSize.getHeight()
 	);
 	p->setIsAlive(true);
 	gameObjects.push_back(p);

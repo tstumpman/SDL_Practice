@@ -6,8 +6,9 @@
 Paddle::Paddle(
 	unsigned char upKeyboardCode,
 	unsigned char downKeyboardCode,
-	SDL_Rect* boundary,
-	SDL_Rect* paddleShape,
+	Vector2D screenSize,
+	Vector2D size,
+	Vector2D position,
 	SDL_Color* color,
 	float speed
 ) {
@@ -15,9 +16,10 @@ Paddle::Paddle(
 	this->upKeyboardCode = upKeyboardCode;
 	this->downKeyboardCode = downKeyboardCode;
 	this->speed = speed;
+	this->screenSize = screenSize;
+	this->size = size;
+	this->position = position;
 	*(this->color) = *(color);
-	*(this->boundary) = *(boundary);
-	*(this->paddleShape) = *(paddleShape);
 	this->isAlive = false;
 }
 
@@ -25,14 +27,8 @@ void Paddle::initialize() {
 	if (color == nullptr) {
 		color = new SDL_Color();
 	}
-
-	if (boundary == nullptr) {
-		boundary = new SDL_Rect();
-	}
-
-	if (paddleShape == nullptr) {
-		paddleShape = new SDL_Rect();
-	}
+	screenSize = Vector2D();
+	size = Vector2D();
 
 	isAlive = false;
 	currentDirection = DIRECTION::STOP;
@@ -45,12 +41,13 @@ void Paddle::initialize() {
 Paddle& Paddle::operator=(const Paddle& other) {
 	if (this != &other) {
 		*(this->color) = *(other.color);
-		*(this->boundary) = *(other.boundary);
-		*(this->paddleShape) = *(other.paddleShape);
 		this->currentDirection = other.currentDirection;
 		this->upKeyboardCode = other.upKeyboardCode;
 		this->downKeyboardCode = other.downKeyboardCode;
 		this->speed = other.speed;
+		this->screenSize = other.screenSize;
+		this->size = other.size;
+		this->position = other.position;
 		this->isAlive = other.isAlive;
 	}
 	return *this;
@@ -60,12 +57,13 @@ Paddle& Paddle::operator=(const Paddle& other) {
 Paddle::Paddle(const Paddle& other) {
 	initialize();
 	*(this->color) = *(other.color);
-	*(this->boundary) = *(other.boundary);
-	*(this->paddleShape) = *(other.paddleShape);
 	this->upKeyboardCode = other.upKeyboardCode;
 	this->downKeyboardCode = other.downKeyboardCode;
 	this->currentDirection = other.currentDirection;
 	this->speed = other.speed;
+	this->screenSize = other.screenSize;
+	this->size = other.size;
+	this->position = other.position;
 	this->isAlive = other.isAlive;
 }
 
@@ -73,12 +71,6 @@ Paddle::Paddle(const Paddle& other) {
 Paddle::~Paddle() {
 	delete this->color;
 	this->color = nullptr;
-
-	delete this->boundary;
-	this->boundary = nullptr;
-
-	delete this->paddleShape;
-	this->paddleShape = nullptr;
 }
 
 void Paddle::setIsAlive(bool isEnabled) {
@@ -100,19 +92,9 @@ void Paddle::processInput() {
 
 void Paddle::update(float deltaTime) {
 	if (!isAlive) return;
-	paddleShape->y += speed * currentDirection * deltaTime;
-	if (paddleShape->y + paddleShape->h > boundary->h) {
-		paddleShape->y = boundary->h - paddleShape->h;
-	}
-	if (paddleShape->x + paddleShape->x > boundary->w) {
-		paddleShape->x = boundary->w - paddleShape->w;
-	}
-	if (paddleShape->x + 0 < boundary->x) {
-		paddleShape->x = boundary->x - 0;
-	}
-	if (paddleShape->y + 0 < boundary->y) {
-		paddleShape->y = boundary->y - 0;
-	}
+	Vector2D yAxis = Vector2D(0, 1);
+	position = position + (yAxis * (deltaTime * speed * currentDirection));
+	position.clamp(Vector2D(0, 0), screenSize);
 }
 
 bool Paddle::getIsAlive() const {
@@ -123,5 +105,11 @@ void Paddle::render(SDL_Renderer* renderer) {
 	if (!isAlive)
 		return;
 	SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
-	SDL_RenderFillRect(renderer, paddleShape);
+	SDL_Rect renderRect = SDL_Rect{
+		int(position.getX() - size.getX() / 2),
+		int(position.getY() - size.getY() / 2),
+		int(size.getX()),
+		int(size.getX())
+	};
+	SDL_RenderFillRect(renderer, &renderRect);
 }
