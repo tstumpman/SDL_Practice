@@ -54,7 +54,7 @@ private://Temporary data for debugging purposes only
 	Ball* gameBall;
 	Paddle* leftPaddle;
 	Paddle* rightPaddle;
-	void generateSomeObjects(int numObjects);
+	void generateSomeObjects(unsigned int numObjects);
 	Paddle* generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
 	void generateBall(Vector2D screenSize);
 	SineWaveObject generateParticle();

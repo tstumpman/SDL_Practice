@@ -138,3 +138,7 @@ void Paddle::render(SDL_Renderer* renderer) {
 Vector2D Paddle::getNormal() {
 	return normal;
 }
+
+const Vector2D const Paddle::getCenter() const {
+	return this->position;
+}

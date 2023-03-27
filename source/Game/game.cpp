@@ -227,7 +227,7 @@ Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL
 	return p;
 }
 
-void Game::generateSomeObjects(int numObjects) {
+void Game::generateSomeObjects(unsigned int numObjects) {
 	srand(SDL_GetTicks());
 
 	for (unsigned int i = 0; i < numObjects; i++) {

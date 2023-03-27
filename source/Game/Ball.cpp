@@ -128,13 +128,19 @@ void Ball::resolveCollision(ICollideable* other) {
 	//Ball can collide with a paddle and a bullet
 	Paddle* paddle = dynamic_cast<Paddle*>(other);
 	if (paddle) {
-		if (velocity.dotProduct(paddle->getNormal()) < 0.0f) {
-			velocity = velocity.getReflection(paddle->getNormal());
-		}
+		Vector2D ballCenter = position;
+		Vector2D paddleCenter = paddle->getCenter();
+		Vector2D newDirection = (ballCenter - paddleCenter).getNormal();
+		float previousSpeed = velocity.getMagnitude();
+		velocity = newDirection * previousSpeed;
 	}
 }
 
 void Ball::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
 	topLeft = (this->position - (this->size * 0.5f));
 	size = this->size;
+}
+
+const Vector2D const Ball::getCenter() const {
+	return this->position;
 }

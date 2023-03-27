@@ -51,6 +51,7 @@ public://ICollideable overrides
 	virtual bool collidesWith( const ICollideable* other) const override;
 	virtual void resolveCollision( ICollideable *other) override;
 	virtual void getCollisionRect(Vector2D& topLeft, Vector2D& size) const override;
+	virtual const Vector2D const getCenter() const override;
 
 private: //Functions
 	Paddle();
