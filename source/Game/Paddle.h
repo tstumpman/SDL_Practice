@@ -53,8 +53,9 @@ public: //GameObject overrides
 public://ICollideable overrides
 	virtual bool collidesWith( const ICollideable* other) const override;
 	virtual void resolveCollision( ICollideable *other) override;
-	virtual void getCollisionRect(Vector2D& topLeft, Vector2D& size) const override;
-	virtual const Vector2D const getCenter() const override;
+	virtual Vector2D getCenter() const override;
+	virtual Vector2D getTopLeft() const override;
+	virtual Vector2D getSize() const override;
 
 private: //Functions
 	Paddle();

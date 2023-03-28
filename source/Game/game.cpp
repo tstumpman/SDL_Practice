@@ -199,10 +199,11 @@ void Game::generateBall(Vector2D screenSize) {
 	SDL_Color white = SDL_Color{ 255, 128, 0, 255 };
 	float startingSpeed = screenSize.getWidth() / 2.0f;
 	Vector2D startingVelocity = Vector2D(rand() % 1000, rand() % 1000).getNormal() * startingSpeed;
+	float ballSize = screenSize.getMagnitude() * 0.05f;
 	gameBall = new Ball(
 		Vector2D(-50, 0),//top left
 		Vector2D(screenSize.getX()+50, screenSize.getY()),//bottom right
-		screenSize * 0.05f,//size
+		Vector2D(ballSize, ballSize),//size
 		screenSize * 0.5f,//position
 		startingVelocity,//velocity
 		&white,

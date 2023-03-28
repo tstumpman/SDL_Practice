@@ -113,20 +113,20 @@ void Ball::render(SDL_Renderer* renderer) {
 	if (!isAlive)
 		return;
 	SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
+	Vector2D topLeft = (this->position - (this->size * 0.5f));
 	SDL_Rect renderRect = SDL_Rect{
-		int(position.getX() - size.getX() / 2),
-		int(position.getY() - size.getY() / 2),
+		int(topLeft.getX()),
+		int(topLeft.getY()),
 		int(size.getX()),
-		int(size.getX())
+		int(size.getY())
 	};
 	SDL_RenderFillRect(renderer, &renderRect);
 }
 
 bool Ball::collidesWith(const ICollideable* other) const {
 	if (!getIsAlive()) return false;
-	Vector2D otherTopLeft;
-	Vector2D otherSize;
-	other->getCollisionRect(otherTopLeft, otherSize);
+	Vector2D otherTopLeft = other->getTopLeft();
+	Vector2D otherSize = other->getSize();
 	// Check if the rectangles intersect in the X-axis
 	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth() / 2) > otherTopLeft.getX());
 
@@ -151,23 +151,28 @@ void Ball::resolveCollision(ICollideable* other) {
 	}
 
 	Projectile* projectile = dynamic_cast<Projectile*>(other);
-	if (projectile) {
+	if (projectile && projectile->getIsAlive()) {
+		projectile->setIsAlive(false);
 		Vector2D ballCenter = position;
 		Vector2D paddleCenter = projectile->getCenter();
 		Vector2D newDirection = (ballCenter - paddleCenter).getNormal();
 		float previousSpeed = velocity.getMagnitude();
 		//maxSpeed = maxSpeed * 1.1f;
+		Vector2D projectileVelocity = projectile->getDirection() * projectile->getSpeed();
 		velocity = newDirection * (previousSpeed + projectile->getSpeed());
 	}
 }
 
-void Ball::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
-	topLeft = (this->position - (this->size * 0.5f));
-	size = this->size;
+Vector2D Ball::getCenter() const {
+	return this->position;
 }
 
-const Vector2D const Ball::getCenter() const {
-	return this->position;
+Vector2D Ball::getTopLeft() const {
+	return  (this->position - (this->size * 0.5f));
+}
+
+Vector2D Ball::getSize() const {
+	return this->size;
 }
 
 void Ball::setPosition(Vector2D updatedPosition) {

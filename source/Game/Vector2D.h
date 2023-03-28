@@ -16,8 +16,8 @@ public:
 	Vector2D operator*(const float scalar) const;
 	friend Vector2D operator*( float scalar, const Vector2D& vector);
 
-	void clamp(const Vector2D& maximum, const Vector2D& minimum);
-	Vector2D vectorToBounds(const Vector2D& maximum, const Vector2D& minimum) const;
+	void clamp(const Vector2D& minimum, const Vector2D& maximum);
+	Vector2D vectorToBounds(const Vector2D& minimum, const Vector2D& maximum) const;
 	void clampMagnitude(const float maximum);
 
 

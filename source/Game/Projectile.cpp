@@ -27,15 +27,11 @@ Projectile::Projectile(
 
 void Projectile::resolveCollision(ICollideable* other) {
 	//Ball can collide with a paddle and a bullet
-	Paddle* paddle = dynamic_cast<Paddle*>(other);
-	if (paddle) {
-		/*if(paddle->getNormal().dotProduct(getDirection()) > 0)
-		setIsAlive(false);*/
-	}
 
-	Ball* ball = dynamic_cast<Ball*>(other);
-	if (ball) {
+	Projectile* projectile = dynamic_cast<Projectile*>(other);
+	if (projectile && projectile->getIsAlive()) {
 		setIsAlive(false);
+		projectile->setIsAlive(false);
 	}
 }
 

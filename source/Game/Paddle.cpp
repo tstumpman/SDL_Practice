@@ -28,10 +28,11 @@ Paddle::Paddle(
 		delete projectile;
 		projectile == nullptr;
 	}
+	float projectileSize = (size * 0.125f).getMagnitude();
 	this->projectile = new Projectile(
 		Vector2D(0, 0),
 		Vector2D(screenSize.getWidth(), screenSize.getHeight()),
-		size * 0.25f,
+		Vector2D(projectileSize*4.0f, projectileSize),
 		position + normal * (size * 0.25f).getWidth(),
 		this->normal,
 		this->color,
@@ -129,16 +130,17 @@ void Paddle::processInput() {
 	}
 
 	if (upPressed && downPressed) {
-		projectile->launch(position);
+		Vector2D paddleOffset = normal * size.getWidth() * 0.5f;
+		Vector2D projectileOffset = normal * (projectile->getSize().getWidth() * 0.5f);
+		projectile->launch(position + paddleOffset + projectileOffset);
 	}
 
 	currentDirection = direction;
 }
 
 bool Paddle::collidesWith(const ICollideable* other) const {
-	Vector2D otherTopLeft;
-	Vector2D otherSize;
-	other->getCollisionRect(otherTopLeft, otherSize);
+	Vector2D otherTopLeft = other->getTopLeft();
+	Vector2D otherSize = other->getSize();
 	// Check if the rectangles intersect in the X-axis
 	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth() / 2) > otherTopLeft.getX());
 
@@ -152,11 +154,20 @@ bool Paddle::collidesWith(const ICollideable* other) const {
 
 void Paddle::resolveCollision( ICollideable* other) {
 	//Paddle can collide with a ball and a bullet, but it only cares if it collides with a bullet.
+	Projectile* projectile = dynamic_cast<Projectile*>(other);
+	if (projectile && projectile->getIsAlive()) {
+		projectile->setIsAlive(false);
+		Vector2D halfHeight = Vector2D(this->size.getWidth(), this->size.getHeight() * 0.5);
+		this->size = halfHeight;
+	}
 }
 
-void Paddle::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
-	topLeft = (this->position - (this->size * 0.5f));
-	size = this->size;
+Vector2D Paddle::getTopLeft() const {
+	return  (this->position - (this->size * 0.5f));
+}
+
+Vector2D Paddle::getSize() const {
+	return this->size;
 }
 
 void Paddle::update(float deltaTime) {
@@ -165,6 +176,8 @@ void Paddle::update(float deltaTime) {
 	position = position + (yAxis * (deltaTime * speed * currentDirection));
 	position.clamp(Vector2D(0, 0), screenSize);
 	projectile->update(deltaTime);
+	size = Vector2D(size.getWidth(), size.getHeight() + (speed * deltaTime/50.0f));
+	size.clamp(Vector2D(), screenSize*0.75f);
 }
 
 bool Paddle::getIsAlive() const {
@@ -189,7 +202,7 @@ Vector2D Paddle::getNormal() {
 	return normal;
 }
 
-const Vector2D const Paddle::getCenter() const {
+Vector2D Paddle::getCenter() const {
 	return this->position;
 }
 

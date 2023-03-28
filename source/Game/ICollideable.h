@@ -8,8 +8,9 @@ public:
 
 	virtual bool collidesWith(const ICollideable* other) const = 0;
 	virtual void resolveCollision( ICollideable* other) = 0;
-	virtual void getCollisionRect( Vector2D& topLeft, Vector2D& size) const = 0;
-	virtual const Vector2D const getCenter() const = 0;
+	virtual Vector2D getCenter() const = 0;
+	virtual Vector2D getTopLeft() const = 0;
+	virtual Vector2D getSize() const = 0;
 
 
 protected: //Functions
