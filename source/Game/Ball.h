@@ -41,19 +41,24 @@ public://ICollideable overrides
 
 private: //Functions
 	Ball();
-	void initialize();
-	void handlePaddleCollision(Paddle * other);
+	void allocateNewData();
 
-private:
-	SDL_Color* color = nullptr;
+protected:
+	SDL_Color* color;
 	Vector2D boundaryMinimum;
 	Vector2D boundaryMaximum;
 	Vector2D size;
 	Vector2D position;
 	Vector2D velocity;
 	float maxSpeed;
-	float deceleration;
 	bool isAlive;
+
+public: //Accessors
+	void setPosition(Vector2D updatedPosition);
+	void setSpeed(float speed);
+	void setDirection(Vector2D direction);
+	Vector2D getDirection();
+	float getSpeed();
 };
 
 #endif

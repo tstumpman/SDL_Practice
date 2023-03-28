@@ -2,6 +2,7 @@
 #include "../MathConstants.h"
 #include "SDL/SDL.h"
 #include "Paddle.h"
+#include "Projectile.h"
 
 //Constructor
 Ball::Ball(
@@ -13,7 +14,7 @@ Ball::Ball(
 	SDL_Color* color,
 	float maxSpeed
 ) {
-	initialize();
+	(*this) = Ball();
 	this->boundaryMinimum = boundaryMinimum;
 	this->boundaryMaximum = boundaryMaximum;
 	this->size = size;
@@ -23,22 +24,33 @@ Ball::Ball(
 	this->isAlive = false;
 }
 
-void Ball::initialize() {
-	if (this->color == nullptr) {
-		this->color = new SDL_Color();
-	}
+Ball::Ball() {
+	this->color = nullptr;
 	this->boundaryMinimum = Vector2D();
 	this->boundaryMaximum = Vector2D();
 	this->size = Vector2D();
 	this->velocity = Vector2D();
 	this->maxSpeed = 0.0f;
 	this->isAlive = false;
+	allocateNewData();
+}
+
+void Ball::allocateNewData() {
+	if (this->color == nullptr) {
+		this->color = new SDL_Color();
+	}
 }
 
 //Copy Assignment operator
 Ball& Ball::operator=(const Ball& other) {
 	if (this != &other) {
-		*(this->color) = *(other.color);
+		allocateNewData();
+		this->boundaryMaximum = other.boundaryMaximum;
+		this->boundaryMinimum = other.boundaryMinimum;
+		this->size = other.size;
+		this->position = other.position;
+		this->velocity = other.velocity;
+		(*this->color) = (*other.color);
 		this->maxSpeed = other.maxSpeed;
 		this->isAlive = other.isAlive;
 	}
@@ -47,15 +59,15 @@ Ball& Ball::operator=(const Ball& other) {
 
 //Copy Constructor
 Ball::Ball(const Ball& other) {
-	initialize();
-	*(this->color) = *(other.color);
-	this->isAlive = other.isAlive;
+	(*this) = other;
 }
 
 //Destructor
 Ball::~Ball() {
-	delete this->color;
-	this->color = nullptr;
+	if (this->color != nullptr) {
+		delete this->color;
+		this->color = nullptr;
+	}
 }
 
 void Ball::setIsAlive(bool isEnabled) {
@@ -70,14 +82,15 @@ void Ball::processInput() {
 void Ball::update(float deltaTime) {
 	if (!isAlive) return;
 
-	velocity.clampMagnitude(maxSpeed);
 	position = position + velocity * deltaTime;
 	if (position.getX() < boundaryMinimum.getX()) {
-		velocity = velocity.getReflection(Vector2D(1.0f, 0));
+		position = boundaryMaximum * 0.5f;
+		velocity = Vector2D();
 	}
 
 	if (position.getX() > boundaryMaximum.getX()) {
-		velocity = velocity.getReflection(Vector2D(-1.0f, 0));
+		position = boundaryMaximum * 0.5f;
+		velocity = Vector2D();
 	}
 	if (position.getY() < boundaryMinimum.getY()) {
 		velocity = velocity.getReflection(Vector2D(0.0f, 1.0f));
@@ -110,14 +123,15 @@ void Ball::render(SDL_Renderer* renderer) {
 }
 
 bool Ball::collidesWith(const ICollideable* other) const {
+	if (!getIsAlive()) return false;
 	Vector2D otherTopLeft;
 	Vector2D otherSize;
 	other->getCollisionRect(otherTopLeft, otherSize);
 	// Check if the rectangles intersect in the X-axis
-	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth()/2) > otherTopLeft.getX());
+	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth() / 2) > otherTopLeft.getX());
 
 	// Check if the rectangles intersect in the Y-axis
-	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight()/2) > otherTopLeft.getY());
+	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight() / 2) > otherTopLeft.getY());
 
 	// Return true if both X-axis and Y-axis overlaps
 	return xOverlap && yOverlap;
@@ -133,6 +147,17 @@ void Ball::resolveCollision(ICollideable* other) {
 		Vector2D newDirection = (ballCenter - paddleCenter).getNormal();
 		float previousSpeed = velocity.getMagnitude();
 		velocity = newDirection * previousSpeed;
+		velocity.clampMagnitude(maxSpeed);
+	}
+
+	Projectile* projectile = dynamic_cast<Projectile*>(other);
+	if (projectile) {
+		Vector2D ballCenter = position;
+		Vector2D paddleCenter = projectile->getCenter();
+		Vector2D newDirection = (ballCenter - paddleCenter).getNormal();
+		float previousSpeed = velocity.getMagnitude();
+		//maxSpeed = maxSpeed * 1.1f;
+		velocity = newDirection * (previousSpeed + projectile->getSpeed());
 	}
 }
 
@@ -143,4 +168,24 @@ void Ball::getCollisionRect(Vector2D& topLeft, Vector2D& size) const {
 
 const Vector2D const Ball::getCenter() const {
 	return this->position;
+}
+
+void Ball::setPosition(Vector2D updatedPosition) {
+	this->position = updatedPosition;
+}
+
+void Ball::setSpeed(float speed) {
+	this->velocity = this->velocity.getNormal() * speed;
+}
+
+void Ball::setDirection(Vector2D updatedPosition) {
+	this->velocity = updatedPosition.getNormal();
+}
+
+Vector2D Ball::getDirection() {
+	return this->velocity.getNormal();
+}
+
+float Ball::getSpeed() {
+	return this->maxSpeed;
 }

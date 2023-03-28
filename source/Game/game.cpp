@@ -65,9 +65,9 @@ bool Game::initialize() {
 	}
 	//generateSomeObjects(10);
 
+	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generateBall(windowSize);
-	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	return true;
 }
 
@@ -145,11 +145,21 @@ void Game::updateGame(float deltaTime) {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->update(deltaTime);
 	}
-	if (gameBall->collidesWith(leftPaddle)){
-		gameBall->resolveCollision(leftPaddle);
-	}
-	if (gameBall->collidesWith(rightPaddle)) {
-		gameBall->resolveCollision(rightPaddle);
+
+	//UNSUSTAINABLE FOR LARGE GROUPS OF COLLIDEABLE OBJECTS!!!
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		ICollideable* collideable1 = dynamic_cast<ICollideable*> (gameObjects[i]);
+		if (collideable1) {
+			for (unsigned int j = i+1; j < gameObjects.size(); j++) {
+				ICollideable* collideable2 = dynamic_cast<ICollideable*> (gameObjects[j]);
+				if (collideable2) {
+					if (collideable1->collidesWith(collideable2)) {
+						collideable1->resolveCollision(collideable2);
+						collideable2->resolveCollision(collideable1);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -187,17 +197,18 @@ void Game::renderGraphics() {
 
 void Game::generateBall(Vector2D screenSize) {
 	SDL_Color white = SDL_Color{ 255, 128, 0, 255 };
-
+	float startingSpeed = screenSize.getWidth() / 2.0f;
+	Vector2D startingVelocity = Vector2D(rand() % 1000, rand() % 1000).getNormal() * startingSpeed;
 	gameBall = new Ball(
 		Vector2D(-50, 0),//top left
 		Vector2D(screenSize.getX()+50, screenSize.getY()),//bottom right
 		screenSize * 0.05f,//size
 		screenSize * 0.5f,//position
-		Vector2D(rand() % 1000, rand() % 1000),//velocity
+		startingVelocity,//velocity
 		&white,
-		screenSize.getWidth()/2.0f
+		startingSpeed
 	);
-	gameBall->setIsAlive(true);
+	gameBall->setIsAlive(true); 
 
 	gameObjects.push_back(gameBall);
 }
@@ -205,7 +216,7 @@ void Game::generateBall(Vector2D screenSize) {
 Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
 
 	int paddleWidth = screenSize.getWidth() / 20.0f;
-	int paddleHeight = screenSize.getHeight() / 10.0f;
+	int paddleHeight = screenSize.getHeight() / 5.0f;
 	int yPos = screenSize.getHeight() / 2.0f - paddleHeight / 2.0f;
 	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
 	SDL_Rect screenDimens = SDL_Rect{ 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight()};
@@ -224,6 +235,7 @@ Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL
 	);
 	p->setIsAlive(true);
 	gameObjects.push_back(p);
+	gameObjects.push_back(p->getBullet());
 	return p;
 }
 

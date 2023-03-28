@@ -166,6 +166,7 @@
     <ClCompile Include="source\Game\Ball.cpp" />
     <ClCompile Include="source\Game\game.cpp" />
     <ClCompile Include="source\Game\Paddle.cpp" />
+    <ClCompile Include="source\Game\Projectile.cpp" />
     <ClCompile Include="source\Game\SineWaveObject.cpp" />
     <ClCompile Include="source\Game\Vector2D.cpp" />
     <ClCompile Include="source\Game\Vector2DTest.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="source\Game\ICollideable.h" />
     <ClInclude Include="source\Game\IGameObject.h" />
     <ClInclude Include="source\Game\Paddle.h" />
+    <ClInclude Include="source\Game\Projectile.h" />
     <ClInclude Include="source\Game\SineWaveObject.h" />
     <ClInclude Include="source\Game\Vector2D.h" />
     <ClInclude Include="source\Game\Vector2DTest.h" />

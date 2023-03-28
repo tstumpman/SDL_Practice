@@ -1,0 +1,61 @@
+#include "Ball.h"
+#include "../MathConstants.h"
+#include "SDL/SDL.h"
+#include "Projectile.h"
+#include "Paddle.h"
+
+//Constructor
+Projectile::Projectile(
+	Vector2D boundaryMinimum,
+	Vector2D boundaryMaximum,
+	Vector2D size,
+	Vector2D position,
+	Vector2D velocity,
+	SDL_Color* color,
+	float maxSpeed
+) :  Ball (
+	boundaryMinimum,
+	boundaryMaximum, 
+	size,
+	position, 
+	velocity,
+	color, 
+	maxSpeed
+	) {
+
+}
+
+void Projectile::resolveCollision(ICollideable* other) {
+	//Ball can collide with a paddle and a bullet
+	Paddle* paddle = dynamic_cast<Paddle*>(other);
+	if (paddle) {
+		/*if(paddle->getNormal().dotProduct(getDirection()) > 0)
+		setIsAlive(false);*/
+	}
+
+	Ball* ball = dynamic_cast<Ball*>(other);
+	if (ball) {
+		setIsAlive(false);
+	}
+}
+
+void Projectile::launch(Vector2D startingPosition) {
+	if (!getIsAlive()) {
+		setPosition(startingPosition);
+		setDirection(getDirection());
+		setSpeed(getSpeed());
+		setIsAlive(true);
+	}
+}
+
+void Projectile::update(float deltaTime) {
+	if (!getIsAlive()) return;
+
+	position = position + velocity * deltaTime;
+
+	float distanceToBoundary = position.vectorToBounds(boundaryMinimum, boundaryMaximum).getMagnitude();
+	if (distanceToBoundary > 0.0001 || distanceToBoundary < -0.0001){
+		setIsAlive(false);
+	}
+
+}

@@ -13,7 +13,7 @@ Paddle::Paddle(
 	SDL_Color* color,
 	float speed
 ) {
-	initialize();
+	(*this) = Paddle();
 	this->upKeyboardCode = upKeyboardCode;
 	this->downKeyboardCode = downKeyboardCode;
 	this->speed = speed;
@@ -23,12 +23,42 @@ Paddle::Paddle(
 	this->position = position;
 	*(this->color) = *(color);
 	this->isAlive = false;
+	
+	if (projectile != nullptr) {
+		delete projectile;
+		projectile == nullptr;
+	}
+	this->projectile = new Projectile(
+		Vector2D(0, 0),
+		Vector2D(screenSize.getWidth(), screenSize.getHeight()),
+		size * 0.25f,
+		position + normal * (size * 0.25f).getWidth(),
+		this->normal,
+		this->color,
+		speed
+	);
 }
 
-void Paddle::initialize() {
-	if (color == nullptr) {
-		color = new SDL_Color();
+void Paddle::allocateNewData() {
+	if (this->color == nullptr) {
+		this->color = new SDL_Color();
 	}
+	if (this->projectile == nullptr) {
+		SDL_Color white = SDL_Color{ 0, 0 , 0, 0 };
+		projectile = new Projectile(
+			Vector2D(),
+			Vector2D(),
+			Vector2D(),
+			Vector2D(),
+			Vector2D(),
+			&white,
+			0.0f);
+	}
+}
+Paddle::Paddle() {
+	color = nullptr;
+	projectile = nullptr;
+
 	screenSize = Vector2D();
 	size = Vector2D();
 	position = Vector2D();
@@ -39,12 +69,16 @@ void Paddle::initialize() {
 	upKeyboardCode = SDL_SCANCODE_W;
 	downKeyboardCode = SDL_SCANCODE_S;
 	speed = 0.0f;
+
+	allocateNewData();
 }
 
 //Copy Assignment operator
 Paddle& Paddle::operator=(const Paddle& other) {
 	if (this != &other) {
+		allocateNewData();
 		*(this->color) = *(other.color);
+		*(this->projectile) = *(other.projectile);
 		this->currentDirection = other.currentDirection;
 		this->upKeyboardCode = other.upKeyboardCode;
 		this->downKeyboardCode = other.downKeyboardCode;
@@ -60,14 +94,20 @@ Paddle& Paddle::operator=(const Paddle& other) {
 
 //Copy Constructor
 Paddle::Paddle(const Paddle& other) {
-	initialize();
 	(*this) = other;
 }
 
 //Destructor
 Paddle::~Paddle() {
-	delete this->color;
-	this->color = nullptr;
+	if (this->color != nullptr) {
+		delete this->color;
+		this->color = nullptr;
+	}
+
+	if (this->projectile != nullptr) {
+		delete this->projectile;
+		this->projectile = nullptr;
+	}
 }
 
 void Paddle::setIsAlive(bool isEnabled) {
@@ -78,12 +118,20 @@ void Paddle::setIsAlive(bool isEnabled) {
 void Paddle::processInput() {
 	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 	Paddle::DIRECTION direction = Paddle::DIRECTION::STOP;
-	if (keyboardState[upKeyboardCode]) {
+	bool upPressed = keyboardState[upKeyboardCode];
+	bool downPressed = keyboardState[downKeyboardCode];
+	if (upPressed) {
 		direction = Paddle::DIRECTION::UP;
 	}
+
 	if (keyboardState[downKeyboardCode]) {
 		direction = Paddle::DIRECTION::DOWN;
 	}
+
+	if (upPressed && downPressed) {
+		projectile->launch(position);
+	}
+
 	currentDirection = direction;
 }
 
@@ -92,10 +140,10 @@ bool Paddle::collidesWith(const ICollideable* other) const {
 	Vector2D otherSize;
 	other->getCollisionRect(otherTopLeft, otherSize);
 	// Check if the rectangles intersect in the X-axis
-	bool xOverlap = (position.getX() < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth()) > otherTopLeft.getX());
+	bool xOverlap = ((position.getX() - size.getWidth() / 2) < (otherTopLeft.getX() + otherSize.getWidth())) && ((position.getX() + size.getWidth() / 2) > otherTopLeft.getX());
 
 	// Check if the rectangles intersect in the Y-axis
-	bool yOverlap = (position.getY() < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight()) > otherTopLeft.getY());
+	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight() / 2) > otherTopLeft.getY());
 
 	// Return true if both X-axis and Y-axis overlaps
 	return xOverlap && yOverlap;
@@ -116,6 +164,7 @@ void Paddle::update(float deltaTime) {
 	Vector2D yAxis = Vector2D(0, 1);
 	position = position + (yAxis * (deltaTime * speed * currentDirection));
 	position.clamp(Vector2D(0, 0), screenSize);
+	projectile->update(deltaTime);
 }
 
 bool Paddle::getIsAlive() const {
@@ -127,12 +176,13 @@ void Paddle::render(SDL_Renderer* renderer) {
 		return;
 	SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 	SDL_Rect renderRect = SDL_Rect{
-		int(position.getX() - size.getX() / 2),
-		int(position.getY() - size.getY() / 2),
+		int(position.getX() - size.getWidth() / 2.0f),
+		int(position.getY() - size.getHeight() / 2.0f),
 		int(size.getX()),
-		int(size.getX())
+		int(size.getY())
 	};
 	SDL_RenderFillRect(renderer, &renderRect);
+	projectile->render(renderer);
 }
 
 Vector2D Paddle::getNormal() {
@@ -141,4 +191,8 @@ Vector2D Paddle::getNormal() {
 
 const Vector2D const Paddle::getCenter() const {
 	return this->position;
+}
+
+ Projectile* Paddle::getBullet() {
+	return this->projectile;
 }

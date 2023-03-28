@@ -3,6 +3,7 @@
 #include "IGameObject.h"
 #include "ICollideable.h"
 #include "Vector2D.h"
+#include "Projectile.h"
 
 class SDL_Renderer;
 class SDL_Color;
@@ -34,6 +35,8 @@ public:
 	~Paddle();
 	Vector2D getNormal();
 
+	Projectile* getBullet();
+
 	enum DIRECTION {
 		UP = -1,
 		STOP = 0,
@@ -55,15 +58,16 @@ public://ICollideable overrides
 
 private: //Functions
 	Paddle();
-	void initialize();
+	void allocateNewData();
 
 private:
-	SDL_Color* color = nullptr;
-	Vector2D screenSize = Vector2D();
-	Vector2D size = Vector2D();
-	Vector2D position = Vector2D();
-	Vector2D normal = Vector2D();
+	SDL_Color* color;
+	Vector2D screenSize;
+	Vector2D size;
+	Vector2D position;
+	Vector2D normal;
 	bool isAlive;
+	Projectile* projectile;
 	DIRECTION currentDirection;
 	unsigned char upKeyboardCode, downKeyboardCode;
 	float speed;
