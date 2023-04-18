@@ -1,5 +1,6 @@
 #include "game.h"
 #include "SDL/SDL.h"
+#include "SDL/SDL_Image.h"
 #include "../VideoConstants.h"
 #include "../MathConstants.h"
 #include "Ball.h"
@@ -58,16 +59,29 @@ bool Game::initialize() {
 		logSdlError(SDL_GetError());
 		return false;
 	}
+
+	// Initialize SDL_image
+	int imgResult = IMG_Init(IMG_INIT_PNG);
+	if(imgResult == 0) {
+			SDL_Log("Unable to initialize SDL Image: %s", SDL_GetError());
+			return false;
+		}
+
 	Vector2DTest vectortest = Vector2DTest();
 	int vectorErrors = vectortest.runTests();
 	if (vectorErrors != 0) {
 		return false;
 	}
-	//generateSomeObjects(10);
 
 	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generateBall(windowSize);
+	fontTexture = IMG_LoadTexture(mRenderer, "resources/basic_font_monospace.png");
+	if (!fontTexture) {
+		logSdlError(SDL_GetError());
+		return false;
+	}
+	generateHud(fontTexture);
 	return true;
 }
 
@@ -116,6 +130,7 @@ void Game::shutdown() {
 	//Shutdown in reverse order of creation.  Last in, first out.
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
+	SDL_DestroyTexture(fontTexture);
 	SDL_Quit();
 }
 
@@ -187,6 +202,8 @@ void Game::renderGraphics() {
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
+	std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
+	gameHud->setText(messageDisplay);
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->render(mRenderer);
 	}
@@ -212,6 +229,19 @@ void Game::generateBall(Vector2D screenSize) {
 	gameBall->setIsAlive(true); 
 
 	gameObjects.push_back(gameBall);
+}
+
+void Game::generateHud(SDL_Texture* fontTexture ) {
+	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	gameHud = new TextChunk(
+		Vector2D(0, 0),//top left
+		Vector2D( 50, 50),//boundary Size
+		Vector2D( 10, 10),//letter size
+		&white,
+		fontTexture
+	);
+	gameHud->setIsAlive(true);
+	gameObjects.push_back(gameHud);
 }
 
 Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {

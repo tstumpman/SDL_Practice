@@ -8,7 +8,9 @@
 #include "SineWaveObject.h"
 #include "Paddle.h"
 #include "Ball.h"
+#include "TextChunk.h"
 #include "SDL/SDL_scancode.h"
+
 #include "Vector2d.h"
 
 //Forward Declarations
@@ -52,11 +54,14 @@ private://Data
 private://Temporary data for debugging purposes only
 	std::vector<IGameObject*> gameObjects;
 	Ball* gameBall;
+	TextChunk* gameHud;
 	Paddle* leftPaddle;
 	Paddle* rightPaddle;
 	void generateSomeObjects(unsigned int numObjects);
 	Paddle* generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
 	void generateBall(Vector2D screenSize);
+	SDL_Texture* fontTexture;
+	void generateHud(SDL_Texture* fontTexture);
 	SineWaveObject generateParticle();
 protected:
 
