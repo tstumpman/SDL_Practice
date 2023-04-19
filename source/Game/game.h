@@ -39,6 +39,7 @@ private://Functions
 	void updateGame(float deltaTime);
 	void generateOutput();
 	void renderAudio();
+	Vector2D getWindowSize();
 	void renderGraphics();
 	void logSdlError( std::string errorMessage);
 	void logSdlError(std::vector<std::string> messages);
@@ -60,8 +61,7 @@ private://Temporary data for debugging purposes only
 	void generateSomeObjects(unsigned int numObjects);
 	Paddle* generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
 	void generateBall(Vector2D screenSize);
-	SDL_Texture* fontTexture;
-	void generateHud(SDL_Texture* fontTexture);
+	void generateHud();
 	SineWaveObject generateParticle();
 protected:
 

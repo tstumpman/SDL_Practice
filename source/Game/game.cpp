@@ -17,6 +17,7 @@ Game::Game() {
 }
 Game::~Game() {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		if (gameObjects[i] == nullptr) continue;
 		delete gameObjects[i];
 		gameObjects[i] = nullptr;
 	}
@@ -76,12 +77,9 @@ bool Game::initialize() {
 	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generateBall(windowSize);
-	fontTexture = IMG_LoadTexture(mRenderer, "resources/basic_font_monospace.png");
-	if (!fontTexture) {
-		logSdlError(SDL_GetError());
-		return false;
-	}
-	generateHud(fontTexture);
+	
+
+	generateHud();
 	return true;
 }
 
@@ -127,10 +125,14 @@ float Game::getDeltaTime(float previousTimestamp, float currentTimestamp, float 
 }
 
 void Game::shutdown() {
+	for (unsigned int i = 0; i < gameObjects.size(); i++) {
+		if (gameObjects[i] == nullptr) continue;
+		delete gameObjects[i];
+		gameObjects[i] = nullptr;
+	}
 	//Shutdown in reverse order of creation.  Last in, first out.
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
-	SDL_DestroyTexture(fontTexture);
 	SDL_Quit();
 }
 
@@ -195,14 +197,15 @@ void Game::renderGraphics() {
 	//clear the backbuffer
 	SDL_SetRenderDrawColor(
 		mRenderer,	//
-		0,		//R
+		0,			//R
 		0,			//G
-		0,		//B
+		0,			//B
 		0			//A
 	);
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
-	std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
+	//std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
+	std::string messageDisplay = "What a horrible fricken night to be havin' a curse or some shit.";
 	gameHud->setText(messageDisplay);
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->render(mRenderer);
@@ -230,15 +233,27 @@ void Game::generateBall(Vector2D screenSize) {
 
 	gameObjects.push_back(gameBall);
 }
-
-void Game::generateHud(SDL_Texture* fontTexture ) {
+Vector2D Game::getWindowSize() {
+	int w, h;
+	SDL_GetWindowSize(mWindow, &w, &h);
+	return Vector2D(w, h);
+}
+void Game::generateHud( ) {
+	SDL_Color red = SDL_Color{ 255, 0, 0, 255 };
+	SDL_Color blue = SDL_Color{ 0, 255, 0, 255 };
+	SDL_Color green = SDL_Color{ 0, 0, 255, 255 };
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	Vector2D windowSize = getWindowSize();
 	gameHud = new TextChunk(
 		Vector2D(0, 0),//top left
-		Vector2D( 50, 50),//boundary Size
-		Vector2D( 10, 10),//letter size
+		Vector2D(windowSize.getWidth(), windowSize.getHeight()/5.0f),//boundary Size
+		Vector2D( 16, 16),//letter size
+		&red,
+		8,
 		&white,
-		fontTexture
+		10,
+		mRenderer,
+		"resources/monospace_alpha.png"
 	);
 	gameHud->setIsAlive(true);
 	gameObjects.push_back(gameHud);

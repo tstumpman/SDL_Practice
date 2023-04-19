@@ -72,15 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

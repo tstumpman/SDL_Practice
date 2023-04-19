@@ -2,6 +2,7 @@
 #include "../MathConstants.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
+#include "SDL/SDL_Rect.h"
 #include "Paddle.h"
 #include "Projectile.h"
 
@@ -10,58 +11,72 @@ TextChunk::TextChunk(
 	Vector2D topLeft,
 	Vector2D boundarySize,
 	Vector2D letterSize,
-	SDL_Color* color,
-	SDL_Texture* fontTextureSource
+	SDL_Color* backgroundColor,
+	float padding,
+	SDL_Color* borderColor,
+	float borderWidth,
+	SDL_Renderer* renderer,
+	std::string fontPath
 ) {
-	(*this) = TextChunk();
+	this->borderColor = new SDL_Color;
+	*(this->borderColor) = *borderColor;
+	this->backgroundColor = new SDL_Color;
+	*(this->backgroundColor) = *backgroundColor;
+	this->fontTextureSource = nullptr;
 	this->boundarySize = boundarySize;
-	this->topLeft = topLeft;
 	this->letterSize = letterSize;
-	*(this->color) = *(color);
-	this->fontTextureSource = fontTextureSource;
+	this->topLeft = topLeft;
+	this->currentText = "";
 	this->isAlive = false;
+	this->padding = padding;
+	this->borderWidth = borderWidth;
+	this->letterSlots = calculateLetterSlots();
+	setFontPath(fontPath, renderer);
 }
 
 TextChunk::TextChunk() {
-	this->color = nullptr;
+	this->borderColor = nullptr;
+	this->backgroundColor = nullptr;
 	this->fontTextureSource = nullptr;
 	this->boundarySize = Vector2D();
 	this->topLeft = Vector2D();
+	this->currentText = "";
 	this->letterSize = Vector2D();
 	this->isAlive = false;
-	allocateNewData();
+	this->padding = 0;
+	this->borderWidth = 0;
+	this->letterSlots = calculateLetterSlots();
 }
 
-void TextChunk::allocateNewData() {
-	if (this->color == nullptr) {
-		this->color = new SDL_Color();
+void TextChunk::releaseTextures() {
+	if (this->fontTextureSource != nullptr) {
+		SDL_DestroyTexture(fontTextureSource);
+		fontTextureSource = nullptr;
 	}
 }
-
-//Copy Assignment operator
-TextChunk& TextChunk::operator=(const TextChunk& other) {
-	if (this != &other) {
-		allocateNewData();
-		this->boundarySize = other.boundarySize;
-		this->topLeft = other.topLeft;
-		this->letterSize = other.letterSize;
-		(*this->color) = (*other.color);
-		this->isAlive = other.isAlive;
-	}
-	return *this;
-}
-
-//Copy Constructor
-TextChunk::TextChunk(const TextChunk& other) {
-	(*this) = other;
-}
-
 //Destructor
 TextChunk::~TextChunk() {
-	if (this->color != nullptr) {
-		delete this->color;
-		this->color = nullptr;
+	if (this->borderColor != nullptr) {
+		delete borderColor;
+		borderColor = nullptr;
 	}
+
+	if (this->backgroundColor != nullptr) {
+		delete backgroundColor;
+		borderColor = nullptr;
+	}
+
+	releaseTextures();
+
+	for (auto& rowVec : letterSlots) {
+		for (auto ptr : rowVec) {
+			if (ptr != nullptr) {
+				delete ptr;
+			}
+		}
+		rowVec.clear();
+	}
+	letterSlots.clear();
 }
 
 void TextChunk::setIsAlive(bool isEnabled) {
@@ -70,7 +85,7 @@ void TextChunk::setIsAlive(bool isEnabled) {
 
 
 void TextChunk::processInput() {
-	//Ball is auto controlled.
+	//no input
 }
 
 void TextChunk::update(float deltaTime) {
@@ -89,26 +104,31 @@ void TextChunk::render(SDL_Renderer* renderer) {
 	if (currentText.length() == 0) {
 		return;
 	}
-	SDL_Rect renderRect = SDL_Rect{
-		int(topLeft.getX()),
-		int(topLeft.getY()),
-		int(boundarySize.getX()),
-		int(boundarySize.getY())
+
+	SDL_Rect borderRect = SDL_Rect{
+	int(topLeft.getX()),
+	int(topLeft.getY()),
+	int(boundarySize.getWidth()),
+	int(boundarySize.getHeight())
 	};
-
-	Vector2D targetPos = boundarySize * 0.25f;
-	SDL_Rect targetRect = SDL_Rect{int(targetPos.getX()), int(targetPos.getY()), 8, 8};
-	
-	//Draw the text box background
-	SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
-	SDL_RenderFillRect(renderer, &renderRect);
-
-	//Draw the text
-	renderString(currentText, topLeft, boundarySize * (1.0f / currentText.size()), renderer);
+	SDL_Rect paddingRect = SDL_Rect{
+	int(borderRect.x + borderWidth),
+	int(borderRect.y + borderWidth),
+	int(borderRect.w - 2*borderWidth),
+	int(borderRect.h - 2*borderWidth)
+	};
 
 	//Draw a border for the text box
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0,255);
-	SDL_RenderDrawRect(renderer, &renderRect);
+	SDL_RenderFillRect(renderer, &borderRect);
+
+	//Draw the text box background
+	SDL_SetRenderDrawColor(renderer, 128, 128, 255, 255);
+	SDL_RenderFillRect(renderer, &paddingRect);
+
+	//Draw the text
+	renderString(currentText, renderer);
+
 	
 	//Present your changes
 	SDL_RenderPresent(renderer);
@@ -122,20 +142,48 @@ void TextChunk::setText(std::string newText) {
 	this->currentText = newText;
 }
 
-Vector2D TextChunk::convertCharTo2DIndex(char symbol) {
-	
-	int row_index = symbol / TEXT_CHUNK_FONT_COLUMNS;
-	int col_index = symbol % TEXT_CHUNK_FONT_COLUMNS;
+void TextChunk::setFontPath(std::string newFontPath, SDL_Renderer * renderer) {
+	releaseTextures();
+	this->fontTextureSource = IMG_LoadTexture(renderer, newFontPath.c_str());
+}
+
+Vector2D TextChunk::convert1DIndexTo2DIndex(int index, int width) {
+	int row_index = index / width;
+	int col_index = index % width;
 	return Vector2D(col_index, row_index);
 }
 
-void TextChunk::renderString(std::string string, Vector2D startPosition, Vector2D letterRenderSize, SDL_Renderer* renderer) {
-	Vector2D currentPosition = startPosition;
+void TextChunk::renderString(std::string string, SDL_Renderer* renderer) {
 	for (unsigned int index = 0; index < string.size(); index++) {
-		Vector2D letterSourcePosition = convertCharTo2DIndex(string[index]) * 8;
+		Vector2D letterSourcePosition = convert1DIndexTo2DIndex(string[index], TEXT_CHUNK_FONT_COLUMNS) * TEX;
 		SDL_Rect letterSourceRectangle = SDL_Rect{ int(letterSourcePosition.getX()), int(letterSourcePosition.getY()), 8, 8 };
-		SDL_Rect targetRect = SDL_Rect{ int(currentPosition.getX()), int(currentPosition.getY()), int(letterRenderSize.getWidth()), int(letterRenderSize.getHeight()) };
-		SDL_RenderCopy(renderer, fontTextureSource, &letterSourceRectangle, &targetRect);
-		currentPosition = currentPosition + Vector2D(letterRenderSize.getWidth(), 0);
+		Vector2D targetIndex = convert1DIndexTo2DIndex(index, letterSlots[0].size());
+		SDL_Rect* targetRect = letterSlots[targetIndex.getHeight()][targetIndex.getWidth()];
+		SDL_RenderCopy(renderer, fontTextureSource, &letterSourceRectangle, targetRect);
 	}
+}
+
+std::vector<std::vector<SDL_Rect*>> TextChunk::calculateLetterSlots() {
+	if (letterSize.getWidth() == 0) return std::vector<std::vector<SDL_Rect*>>();
+	if (letterSize.getHeight() == 0) return std::vector<std::vector<SDL_Rect*>>();
+
+	Vector2D letterArea = Vector2D(boundarySize.getWidth() - 2*(borderWidth + padding), boundarySize.getHeight() - 2*(borderWidth + padding));
+	int columns = letterArea.getWidth() / letterSize.getWidth();
+	int rows = letterArea.getHeight()/ letterSize.getHeight();
+	std::vector<std::vector<SDL_Rect*>> returnMe = std::vector<std::vector<SDL_Rect*>>();
+	returnMe.resize(rows);
+	
+	for (unsigned int r = 0; r < returnMe.size(); r++) {
+		returnMe[r].resize(columns);
+		for (unsigned int c = 0; c < returnMe[r].size(); c++) {
+			returnMe[r][c] =
+				new SDL_Rect{
+					int((c * letterSize.getWidth()) + (padding + borderWidth)),
+					int((r * letterSize.getHeight()) + (padding + borderWidth)),
+					int(letterSize.getWidth()),
+					int(letterSize.getHeight())
+			};
+		}
+	}
+	return returnMe;
 }

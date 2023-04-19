@@ -2,12 +2,16 @@
 #define C_TEXT_CHUNK
 #include "IGameObject.h"
 #include "Vector2D.h"
+
 #include <string>
+#include <vector>
 #define TEXT_CHUNK_FONT_ROWS 8
 #define TEXT_CHUNK_FONT_COLUMNS 16
-class SDL_Renderer;
+#define TEXT_CHUNK_LETTER_PIXELS_SOURCE 16
 struct SDL_Color;
+struct SDL_Renderer;
 struct SDL_Texture;
+struct SDL_Rect;
 class TextChunk : public IGameObject {
 public:
 	//Default constructor
@@ -15,15 +19,13 @@ public:
 		Vector2D topLeft,
 		Vector2D boundarySize,
 		Vector2D letterSize,
-		SDL_Color* color,
-		SDL_Texture* fontTextureSource
+		SDL_Color* backgroundColor,
+		float padding,
+		SDL_Color* borderColor,
+		float borderWidth,
+		SDL_Renderer* renderer,
+		std::string fontPath
 	);
-
-	//Copy Assignment operator
-	TextChunk& operator=(const TextChunk& other);
-
-	//Copy Constructor
-	TextChunk(const TextChunk& other);
 
 	//Destructor
 	~TextChunk();
@@ -37,21 +39,28 @@ public:
 
 private: //Functions
 	TextChunk();
-	void allocateNewData();
-	Vector2D convertCharTo2DIndex(char symbol);
-	void renderString(std::string string, Vector2D startPosition, Vector2D letterRenderSize, SDL_Renderer* renderer);
+	Vector2D convert1DIndexTo2DIndex(int index, int width);
+	void renderString(std::string string, SDL_Renderer* renderer);
+	std::vector<std::vector<SDL_Rect*>> calculateLetterSlots();
+	void releaseTextures();
 protected:
-	SDL_Color* color;
+	SDL_Color* borderColor;
+	float padding;
+	SDL_Color* backgroundColor;
+	float borderWidth;
 	SDL_Texture* fontTextureSource;
 	Vector2D boundarySize;
 	Vector2D letterSize;
 	Vector2D topLeft;
+	std::vector<std::vector<SDL_Rect*>> letterSlots;
 	std::string currentText;
+	std::string fontPath;
 	bool isAlive;
 
 public: //Accessors
 	void setPosition(Vector2D updatedPosition);
 	void setText(std::string newText);
+	void setFontPath(std::string newFont, SDL_Renderer * renderer);
 };
 
 #endif
