@@ -82,8 +82,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
-    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
-    <IncludePath>C:\Users\aosteen\Documents\Repositories\SDL_Practice\external\SDL\include\SDL;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>external\SDL\include\SDL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
