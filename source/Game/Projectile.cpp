@@ -12,7 +12,8 @@ Projectile::Projectile(
 	Vector2D position,
 	Vector2D velocity,
 	SDL_Color* color,
-	float maxSpeed
+	float maxSpeed,
+	Paddle* parent
 ) :  Ball (
 	boundaryMinimum,
 	boundaryMaximum, 
@@ -22,7 +23,7 @@ Projectile::Projectile(
 	color, 
 	maxSpeed
 	) {
-
+	this->parent = parent;
 }
 
 void Projectile::resolveCollision(ICollideable* other) {
@@ -34,6 +35,10 @@ void Projectile::resolveCollision(ICollideable* other) {
 		projectile->setIsAlive(false);
 	}
 }
+
+IGameObject* Projectile::getParent() {
+	return parent;
+};
 
 void Projectile::launch(Vector2D startingPosition) {
 	if (!getIsAlive()) {

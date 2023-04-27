@@ -35,7 +35,6 @@ public:
 	~Paddle();
 	Vector2D getNormal();
 
-	Projectile* getBullet();
 
 	enum DIRECTION {
 		UP = -1,
@@ -48,10 +47,13 @@ public: //GameObject overrides
 	virtual void setIsAlive(bool isEnabled) override;
 	virtual void processInput() override;
 	virtual bool getIsAlive() const override;
+	virtual std::vector<IGameObject*> getChildren() override;
+	virtual IGameObject* getParent() override;
+
 
 
 public://ICollideable overrides
-	virtual bool collidesWith( const ICollideable* other) const override;
+	virtual std::vector<ICollideable*> collidesWith(const ICollideable* other) override;
 	virtual void resolveCollision( ICollideable *other) override;
 	virtual Vector2D getCenter() const override;
 	virtual Vector2D getTopLeft() const override;
@@ -62,6 +64,7 @@ private: //Functions
 	void allocateNewData();
 
 private:
+	std::vector<IGameObject*> children;
 	SDL_Color* color;
 	Vector2D screenSize;
 	Vector2D size;

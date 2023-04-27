@@ -26,7 +26,7 @@ Paddle::Paddle(
 	
 	if (projectile != nullptr) {
 		delete projectile;
-		projectile == nullptr;
+		projectile = nullptr;
 	}
 	float projectileSize = (size * 0.125f).getMagnitude();
 	this->projectile = new Projectile(
@@ -36,8 +36,12 @@ Paddle::Paddle(
 		position + normal * (size * 0.25f).getWidth(),
 		this->normal,
 		this->color,
-		speed
+		speed,
+		this
 	);
+
+	this->children = std::vector<IGameObject*>();
+	children.push_back(projectile);
 }
 
 void Paddle::allocateNewData() {
@@ -53,9 +57,12 @@ void Paddle::allocateNewData() {
 			Vector2D(),
 			Vector2D(),
 			&white,
-			0.0f);
+			0.0f,
+			this
+		);
 	}
 }
+
 Paddle::Paddle() {
 	color = nullptr;
 	projectile = nullptr;
@@ -64,7 +71,7 @@ Paddle::Paddle() {
 	size = Vector2D();
 	position = Vector2D();
 	normal = Vector2D(1,0);
-
+	this->children = std::vector<IGameObject*>();
 	isAlive = false;
 	currentDirection = DIRECTION::STOP;
 	upKeyboardCode = SDL_SCANCODE_W;
@@ -138,7 +145,9 @@ void Paddle::processInput() {
 	currentDirection = direction;
 }
 
-bool Paddle::collidesWith(const ICollideable* other) const {
+std::vector<ICollideable*> Paddle::collidesWith(const ICollideable* other) {
+	std::vector<ICollideable*> collisions = std::vector<ICollideable*>();
+	if (getIsAlive() == false) return collisions;
 	Vector2D otherTopLeft = other->getTopLeft();
 	Vector2D otherSize = other->getSize();
 	// Check if the rectangles intersect in the X-axis
@@ -148,8 +157,15 @@ bool Paddle::collidesWith(const ICollideable* other) const {
 	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight() / 2) > otherTopLeft.getY());
 
 	// Return true if both X-axis and Y-axis overlaps
-	return xOverlap && yOverlap;
-
+	if (xOverlap && yOverlap) {
+		collisions.push_back(this);
+	}
+	
+	auto ballCollisions = this->projectile->collidesWith(other);
+	if (!ballCollisions.empty()) {
+		collisions.insert(collisions.end(), ballCollisions.begin(), ballCollisions.end());
+	}
+	return collisions;
 }
 
 void Paddle::resolveCollision( ICollideable* other) {
@@ -184,6 +200,14 @@ bool Paddle::getIsAlive() const {
 	return this->isAlive;
 }
 
+std::vector<IGameObject*> Paddle::getChildren() {
+	return children;
+};
+
+IGameObject* Paddle::getParent() {
+	return nullptr;
+};
+
 void Paddle::render(SDL_Renderer* renderer) {
 	if (!isAlive)
 		return;
@@ -204,8 +228,4 @@ Vector2D Paddle::getNormal() {
 
 Vector2D Paddle::getCenter() const {
 	return this->position;
-}
-
- Projectile* Paddle::getBullet() {
-	return this->projectile;
 }

@@ -33,6 +33,8 @@ public:
 	virtual void setIsAlive(bool isEnabled) override;
 	virtual void processInput() override {};
 	virtual bool getIsAlive() const override;
+	virtual std::vector<IGameObject*> getChildren() override;
+	virtual IGameObject* getParent() override;
 
 	void initialize(
 		float anchor,

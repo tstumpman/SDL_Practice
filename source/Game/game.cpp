@@ -11,10 +11,14 @@ Game::Game() {
 	isQuitting = false;
 	isRunning = true;
 	mWindow = nullptr;
+	mRenderer = nullptr;
+	mFontTexture = nullptr;
+	gameHud = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
 	gameObjects = std::vector<IGameObject*>();
 }
+
 Game::~Game() {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i] == nullptr) continue;
@@ -33,6 +37,11 @@ bool Game::initialize() {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
+
+	// get the SDL2 version
+	SDL_version version;
+	SDL_GetVersion(&version);
+	printf("SDL2 version: %d.%d.%d\n", version.major, version.minor, version.patch);
 
 	int sdlWindowOptions = SDL_WINDOW_OPENGL;
 	mWindow = SDL_CreateWindow(
@@ -79,7 +88,7 @@ bool Game::initialize() {
 	generateBall(windowSize);
 	
 
-	generateHud();
+	//generateHud();
 	return true;
 }
 
@@ -131,6 +140,7 @@ void Game::shutdown() {
 		gameObjects[i] = nullptr;
 	}
 	//Shutdown in reverse order of creation.  Last in, first out.
+	SDL_DestroyTexture(mFontTexture);
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
@@ -167,12 +177,15 @@ void Game::updateGame(float deltaTime) {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		ICollideable* collideable1 = dynamic_cast<ICollideable*> (gameObjects[i]);
 		if (collideable1) {
-			for (unsigned int j = i+1; j < gameObjects.size(); j++) {
+			for (unsigned int j = 0; j < gameObjects.size(); j++) {
+				if (i == j) continue;
 				ICollideable* collideable2 = dynamic_cast<ICollideable*> (gameObjects[j]);
 				if (collideable2) {
-					if (collideable1->collidesWith(collideable2)) {
-						collideable1->resolveCollision(collideable2);
-						collideable2->resolveCollision(collideable1);
+					auto collisions = collideable1->collidesWith(collideable2);
+
+					for (auto& collision : collisions) {
+						collision->resolveCollision(collideable2);
+						collideable2->resolveCollision(collision);
 					}
 				}
 			}
@@ -206,7 +219,9 @@ void Game::renderGraphics() {
 	//Draw the scene.
 	//std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
 	std::string messageDisplay = "What a horrible fricken night to be havin' a curse or some shit.";
-	gameHud->setText(messageDisplay);
+	if (gameHud != nullptr) {
+		gameHud->setText(messageDisplay);
+	}
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->render(mRenderer);
 	}
@@ -233,17 +248,20 @@ void Game::generateBall(Vector2D screenSize) {
 
 	gameObjects.push_back(gameBall);
 }
+
 Vector2D Game::getWindowSize() {
 	int w, h;
 	SDL_GetWindowSize(mWindow, &w, &h);
 	return Vector2D(w, h);
 }
+
 void Game::generateHud( ) {
 	SDL_Color red = SDL_Color{ 255, 0, 0, 255 };
 	SDL_Color blue = SDL_Color{ 0, 255, 0, 255 };
 	SDL_Color green = SDL_Color{ 0, 0, 255, 255 };
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
 	Vector2D windowSize = getWindowSize();
+	mFontTexture = IMG_LoadTexture(mRenderer, "resources/monospace_alpha.png");
 	gameHud = new TextChunk(
 		Vector2D(0, 0),//top left
 		Vector2D(windowSize.getWidth(), windowSize.getHeight()/5.0f),//boundary Size
@@ -253,7 +271,7 @@ void Game::generateHud( ) {
 		&white,
 		10,
 		mRenderer,
-		"resources/monospace_alpha.png"
+		mFontTexture
 	);
 	gameHud->setIsAlive(true);
 	gameObjects.push_back(gameHud);
@@ -281,7 +299,6 @@ Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL
 	);
 	p->setIsAlive(true);
 	gameObjects.push_back(p);
-	gameObjects.push_back(p->getBullet());
 	return p;
 }
 

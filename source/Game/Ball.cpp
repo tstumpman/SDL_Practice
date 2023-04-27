@@ -123,8 +123,9 @@ void Ball::render(SDL_Renderer* renderer) {
 	SDL_RenderFillRect(renderer, &renderRect);
 }
 
-bool Ball::collidesWith(const ICollideable* other) const {
-	if (!getIsAlive()) return false;
+std::vector<ICollideable*> Ball::collidesWith(const ICollideable* other) {
+	std::vector<ICollideable*> collisions = std::vector<ICollideable*>();
+	if (!getIsAlive()) return collisions;
 	Vector2D otherTopLeft = other->getTopLeft();
 	Vector2D otherSize = other->getSize();
 	// Check if the rectangles intersect in the X-axis
@@ -134,8 +135,10 @@ bool Ball::collidesWith(const ICollideable* other) const {
 	bool yOverlap = ((position.getY() - size.getHeight() / 2) < (otherTopLeft.getY() + otherSize.getHeight())) && ((position.getY() + size.getHeight() / 2) > otherTopLeft.getY());
 
 	// Return true if both X-axis and Y-axis overlaps
-	return xOverlap && yOverlap;
+	if (xOverlap && yOverlap)
+		collisions.push_back(this);
 
+	return collisions;
 }
 
 void Ball::resolveCollision(ICollideable* other) {
@@ -162,6 +165,14 @@ void Ball::resolveCollision(ICollideable* other) {
 		velocity = newDirection * (previousSpeed + projectile->getSpeed());
 	}
 }
+
+std::vector<IGameObject*> Ball::getChildren() {
+	return std::vector<IGameObject*>();
+};
+
+IGameObject* Ball::getParent() {
+	return nullptr;
+};
 
 Vector2D Ball::getCenter() const {
 	return this->position;

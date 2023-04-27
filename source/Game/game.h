@@ -49,6 +49,7 @@ private://Data
 	float maxDelta;
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer;
+	SDL_Texture* mFontTexture;
 	bool isRunning;
 	bool isQuitting;
 

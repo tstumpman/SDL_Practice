@@ -145,7 +145,13 @@ void SineWaveObject::update(float deltaTime) {
 bool SineWaveObject::getIsAlive() const {
 	return this->isAlive;
 }
+std::vector<IGameObject*> SineWaveObject::getChildren() {
+	return std::vector<IGameObject*>();
+};
 
+IGameObject* SineWaveObject::getParent() {
+	return nullptr;
+};
 void SineWaveObject::render(SDL_Renderer* renderer) {
 	if (!isAlive)
 		return;

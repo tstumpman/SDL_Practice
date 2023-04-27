@@ -13,7 +13,8 @@ public:
         Vector2D position,
         Vector2D velocity,
         SDL_Color* color,
-        float maxSpeed
+        float maxSpeed,
+        Paddle* parent
     );
     virtual void update(float deltaTime) override;
 
@@ -21,10 +22,13 @@ public: //ICollideable overrides
     virtual void resolveCollision(ICollideable* other) override;
     void launch(Vector2D startingPosition);
 
+    virtual IGameObject* getParent() override;
+
 private: //Functions
     Projectile();
 
 protected://data
+    Paddle* parent;
     
 
 };
