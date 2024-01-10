@@ -88,7 +88,7 @@ bool Game::initialize() {
 	generateBall(windowSize);
 	
 
-	//generateHud();
+	generateHud();
 	return true;
 }
 
@@ -218,7 +218,8 @@ void Game::renderGraphics() {
 	SDL_RenderClear(mRenderer);
 	//Draw the scene.
 	//std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
-	std::string messageDisplay = "What a horrible fricken night to be havin' a curse or some shit.";
+	std::string messageDisplay = "What a horrible fricken night to be havin' a curse or somethin'. 0123456789";
+	//std::string messageDisplay = "Short message";
 	if (gameHud != nullptr) {
 		gameHud->setText(messageDisplay);
 	}
@@ -260,16 +261,17 @@ void Game::generateHud( ) {
 	SDL_Color blue = SDL_Color{ 0, 255, 0, 255 };
 	SDL_Color green = SDL_Color{ 0, 0, 255, 255 };
 	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
+	SDL_Color black = SDL_Color{ 0, 0, 0, 255 };
 	Vector2D windowSize = getWindowSize();
 	mFontTexture = IMG_LoadTexture(mRenderer, "resources/monospace_alpha.png");
 	gameHud = new TextChunk(
 		Vector2D(0, 0),//top left
 		Vector2D(windowSize.getWidth(), windowSize.getHeight()/5.0f),//boundary Size
 		Vector2D( 16, 16),//letter size
-		&red,
-		8,
-		&white,
-		10,
+		&black,//container color
+		8,//padding
+		&white,//content color
+		4,//border width
 		mRenderer,
 		mFontTexture
 	);

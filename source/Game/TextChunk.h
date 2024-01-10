@@ -44,9 +44,9 @@ private: //Functions
 	void renderString(std::string string, SDL_Renderer* renderer);
 	std::vector<SDL_Rect*> calculateLetterSlots(Vector2D topLeft, Vector2D boundarySize, Vector2D cellSize);
 protected:
-	SDL_Color* borderColor;
+	SDL_Color* containerColor;
 	float padding;
-	SDL_Color* backgroundColor;
+	SDL_Color* bodyColor;
 	float borderWidth;
 	SDL_Texture* fontTextureSource;
 	Vector2D boundarySize;

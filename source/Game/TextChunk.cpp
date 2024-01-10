@@ -19,10 +19,10 @@ TextChunk::TextChunk(
 	SDL_Renderer* renderer,
 	SDL_Texture* fontTexture
 ) {
-	this->borderColor = new SDL_Color;
-	*(this->borderColor) = *borderColor;
-	this->backgroundColor = new SDL_Color;
-	*(this->backgroundColor) = *backgroundColor;
+	this->containerColor = new SDL_Color;
+	*(this->containerColor) = *borderColor;
+	this->bodyColor = new SDL_Color;
+	*(this->bodyColor) = *backgroundColor;
 	this->fontTextureSource = nullptr;
 	this->boundarySize = boundarySize;
 	this->letterSize = letterSize;
@@ -31,13 +31,14 @@ TextChunk::TextChunk(
 	this->isAlive = false;
 	this->padding = padding;
 	this->borderWidth = borderWidth;
-	this->letterSlots = calculateLetterSlots(topLeft, boundarySize, letterSize);
+	Vector2D borderOffset = Vector2D(borderWidth+padding, borderWidth+padding);
+	this->letterSlots = calculateLetterSlots(topLeft + borderOffset, boundarySize - (2 * borderOffset), letterSize);
 	this->fontTextureSource = fontTexture;
 }
 
 TextChunk::TextChunk() {
-	this->borderColor = nullptr;
-	this->backgroundColor = nullptr;
+	this->containerColor = nullptr;
+	this->bodyColor = nullptr;
 	this->fontTextureSource = nullptr;
 	this->boundarySize = Vector2D();
 	this->topLeft = Vector2D();
@@ -51,14 +52,14 @@ TextChunk::TextChunk() {
 
 //Destructor
 TextChunk::~TextChunk() {
-	if (this->borderColor != nullptr) {
-		delete borderColor;
-		borderColor = nullptr;
+	if (this->containerColor != nullptr) {
+		delete containerColor;
+		containerColor = nullptr;
 	}
 
-	if (this->backgroundColor != nullptr) {
-		delete backgroundColor;
-		borderColor = nullptr;
+	if (this->bodyColor != nullptr) {
+		delete bodyColor;
+		bodyColor = nullptr;
 	}
 
 	for (auto ptr : letterSlots) {
@@ -102,34 +103,34 @@ void TextChunk::render(SDL_Renderer* renderer) {
 		return;
 	}
 
-	SDL_Rect borderRect = SDL_Rect{
+	SDL_Rect containerRect = SDL_Rect{
 	int(topLeft.getX()),
 	int(topLeft.getY()),
 	int(boundarySize.getWidth()),
 	int(boundarySize.getHeight())
 	};
-	SDL_Rect paddingRect = SDL_Rect{
-	int(borderRect.x + borderWidth),
-	int(borderRect.y + borderWidth),
-	int(borderRect.w - 2 * borderWidth),
-	int(borderRect.h - 2 * borderWidth)
+	SDL_Rect contentRect = SDL_Rect{
+	int(containerRect.x + borderWidth),
+	int(containerRect.y + borderWidth),
+	int(containerRect.w - 2 * borderWidth),
+	int(containerRect.h - 2 * borderWidth)
 	};
 
 	//Draw a border for the text box
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_SetRenderDrawColor(renderer, containerColor->r, containerColor->g, containerColor->b, containerColor->a);
 	//SDL_RenderSetLineWidth(renderer, borderWidth);//TODO: update SDL library to access this function
-	SDL_RenderFillRect(renderer, &borderRect);
+	SDL_RenderFillRect(renderer, &containerRect);
 
 	//Draw the text box background
-	SDL_SetRenderDrawColor(renderer, 128, 128, 255, 255);
-	SDL_RenderFillRect(renderer, &paddingRect);
+	SDL_SetRenderDrawColor(renderer, bodyColor->r, bodyColor->g, bodyColor->b, bodyColor->a);
+
+	SDL_RenderFillRect(renderer, &contentRect);
 
 	//Draw the text
 	renderString(currentText, renderer);
 
-
 	//Present your changes
-	SDL_RenderPresent(renderer);
+	//SDL_RenderPresent(renderer);
 }
 
 void TextChunk::setPosition(Vector2D updatedPosition) {
@@ -156,7 +157,11 @@ void TextChunk::renderString(std::string string, SDL_Renderer* renderer) {
 	}
 }
 
-std::vector<SDL_Rect*> TextChunk::calculateLetterSlots(Vector2D topLeft, Vector2D boundarySize, Vector2D cellSize) {
+std::vector<SDL_Rect*> TextChunk::calculateLetterSlots(
+	Vector2D topLeft, 
+	Vector2D boundarySize, 
+	Vector2D cellSize
+) {
 	if (cellSize.getWidth() <= 0) return std::vector<SDL_Rect*>();
 	if (cellSize.getHeight() <= 0) return std::vector<SDL_Rect*>();
 	if (boundarySize.getWidth() <= 0) return std::vector<SDL_Rect*>();
@@ -172,8 +177,8 @@ std::vector<SDL_Rect*> TextChunk::calculateLetterSlots(Vector2D topLeft, Vector2
 		for (unsigned int c = 0; c < columns; c++) {
 			returnMe[index] =
 				new SDL_Rect{
-					int((c * cellSize.getWidth())),
-					int((r * cellSize.getHeight())),
+					int((c * cellSize.getWidth()) + topLeft.getX()),
+					int((r * cellSize.getHeight()) + topLeft.getY()),
 					int(letterSize.getWidth()),
 					int(letterSize.getHeight())
 			};
