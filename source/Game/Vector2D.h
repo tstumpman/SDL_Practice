@@ -1,6 +1,6 @@
 #ifndef C_VECTOR_2D
 #define C_VECTOR_2D
-#include "IGameObject.h"
+
 class Vector2D {
 public: 
 	//Default constructor
@@ -20,12 +20,11 @@ public:
 	Vector2D vectorToBounds(const Vector2D& minimum, const Vector2D& maximum) const;
 	void clampMagnitude(const float maximum);
 
-
 	float dotProduct(const Vector2D& other) const;
-	float area() const;
-	float perimiter() const;
+	Vector2D abs() const;
 	Vector2D getProjection(const Vector2D& other) const;
 	Vector2D getReflection(const Vector2D& lineNormal) const;
+	Vector2D getRotation(const float degrees) const;
 	Vector2D getNormal() const;
 	float getMagnitude() const;
 	float getX() const;

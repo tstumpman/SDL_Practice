@@ -1,5 +1,5 @@
 #include "Vector2D.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "SDL/SDL.h"
 
 //Constructor
@@ -42,12 +42,8 @@ float Vector2D::distanceTo(const Vector2D& destination) const {
 	return distanceVector.getMagnitude();
 }
 
-float Vector2D::area() const {
-	return x * y;
-}
-
-float Vector2D::perimiter() const {
-	return 2*x + 2*y;
+Vector2D Vector2D::abs() const {
+	return Vector2D(std::abs(x), std::abs(y));
 }
 
 void Vector2D::clamp(const Vector2D& minimum, const Vector2D& maximum) {
@@ -130,6 +126,15 @@ Vector2D Vector2D::getNormal() const {
 		return Vector2D(x / length, y / length);
 	}
 	return Vector2D(0.0f, 0.0f);
+}
+
+Vector2D Vector2D::getRotation(const float degrees) const {
+	float radians = Math::toRadians(degrees);
+
+	float rotatedX = x * cos(radians) - y * sin(radians);
+	float rotatedY = x * sin(radians) + y * cos(radians);
+
+	return Vector2D(rotatedX, rotatedY);
 }
 
 float Vector2D::getMagnitude() const {

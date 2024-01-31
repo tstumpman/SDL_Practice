@@ -1,5 +1,5 @@
 #include "SineWaveObject.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "SDL/SDL.h"
 
 //Constructor
@@ -133,9 +133,9 @@ void SineWaveObject::update(float deltaTime) {
 			speed = 10;
 		}
 
-		rotation += deltaTime * frequency * RADIANS_PER_CIRCLE;
-		while (rotation > RADIANS_PER_CIRCLE) {
-			rotation -= RADIANS_PER_CIRCLE;
+		rotation += deltaTime * frequency * Math::RADIANS_PER_CIRCLE;
+		while (rotation > Math::RADIANS_PER_CIRCLE) {
+			rotation -= Math::RADIANS_PER_CIRCLE;
 		}
 		float currentPhase = cos(rotation);
 		shape->y = amplitude * currentPhase + anchor - shape->h / 2;

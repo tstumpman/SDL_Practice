@@ -1,5 +1,5 @@
 #include "TextChunk.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_render.h"
@@ -12,17 +12,17 @@ TextChunk::TextChunk(
 	Vector2D topLeft,
 	Vector2D boundarySize,
 	Vector2D letterSize,
-	SDL_Color* backgroundColor,
+	SDL_Color* bodyColor,
 	float padding,
-	SDL_Color* borderColor,
+	SDL_Color* containerColor,
 	float borderWidth,
 	SDL_Renderer* renderer,
 	SDL_Texture* fontTexture
 ) {
 	this->containerColor = new SDL_Color;
-	*(this->containerColor) = *borderColor;
+	*(this->containerColor) = *containerColor;
 	this->bodyColor = new SDL_Color;
-	*(this->bodyColor) = *backgroundColor;
+	*(this->bodyColor) = *bodyColor;
 	this->fontTextureSource = nullptr;
 	this->boundarySize = boundarySize;
 	this->letterSize = letterSize;

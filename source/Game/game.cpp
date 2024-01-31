@@ -2,9 +2,13 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_Image.h"
 #include "../VideoConstants.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "Ball.h"
 #include "Vector2DTest.h"
+#include "Actor.h"
+#include "Color.h"
+#include "inputcomponent.h"
+#include "SpriteComponent.h"
 using namespace std;
 
 Game::Game() {
@@ -17,14 +21,23 @@ Game::Game() {
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
 	gameObjects = std::vector<IGameObject*>();
+	loadedTextures = std::map<std::string, SDL_Texture*>();
 }
 
 Game::~Game() {
+
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i] == nullptr) continue;
 		delete gameObjects[i];
 		gameObjects[i] = nullptr;
 	}
+
+	//Unload the textures;
+	//Iterate through all the loaded textures and destroy them
+	for (auto& texturePair : loadedTextures) {
+		SDL_DestroyTexture(texturePair.second);
+	}
+	loadedTextures.clear();
 }
 
 bool Game::initialize() {
@@ -83,13 +96,34 @@ bool Game::initialize() {
 		return false;
 	}
 
-	rightPaddle = generatePaddle(windowSize.getWidth(), windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
+	rightPaddle = generatePaddle(1, windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
 	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
 	generateBall(windowSize);
 	
 
 	generateHud();
 	return true;
+}
+
+SDL_Texture* Game::getTexture(const std::string& texturePath) {
+	// Check if the texture is already loaded
+	auto it = loadedTextures.find(texturePath);
+	if (it != loadedTextures.end()) {
+		// Texture is already loaded, return it
+		return it->second;
+	}
+
+	// Load the texture
+	SDL_Texture* newTexture = IMG_LoadTexture(mRenderer, texturePath.c_str());
+	if (!newTexture) {
+		SDL_Log("Unable to load texture %s: %s", texturePath.c_str(), SDL_GetError());
+		return nullptr;
+	}
+
+	// Add the new texture to the map
+	loadedTextures[texturePath] = newTexture;
+
+	return newTexture;
 }
 
 void Game::logSdlError(string errorMessage) {
@@ -134,6 +168,13 @@ float Game::getDeltaTime(float previousTimestamp, float currentTimestamp, float 
 }
 
 void Game::shutdown() {
+	while (!actors.empty()) {
+		delete actors.back();
+	}
+
+	while (!pendingActors.empty()) {
+		delete pendingActors.back();
+	}
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i] == nullptr) continue;
 		delete gameObjects[i];
@@ -159,6 +200,7 @@ void Game::processInput() {
 
 	//Get keyboard state;
 	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+
 	if (keyboardState[SDL_SCANCODE_ESCAPE]) {
 		isRunning = false;
 	}
@@ -166,30 +208,39 @@ void Game::processInput() {
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->processInput();
 	}
+	isUpdatingActors = true;
+	for (auto actor : actors) {
+		actor->processInput(keyboardState);
+	}
+	isUpdatingActors = false;
 }
 
 void Game::updateGame(float deltaTime) {
+
+	//Update actors
+	isUpdatingActors = true;
+	for (auto actor : actors) {
+		actor->update(deltaTime);
+	}
+	isUpdatingActors = false;  
+
+	for (auto pendingActor : pendingActors) {
+		actors.emplace_back(pendingActor);
+	}
+	pendingActors.clear();
+
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->update(deltaTime);
 	}
 
-	//UNSUSTAINABLE FOR LARGE GROUPS OF COLLIDEABLE OBJECTS!!!
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		ICollideable* collideable1 = dynamic_cast<ICollideable*> (gameObjects[i]);
-		if (collideable1) {
-			for (unsigned int j = 0; j < gameObjects.size(); j++) {
-				if (i == j) continue;
-				ICollideable* collideable2 = dynamic_cast<ICollideable*> (gameObjects[j]);
-				if (collideable2) {
-					auto collisions = collideable1->collidesWith(collideable2);
-
-					for (auto& collision : collisions) {
-						collision->resolveCollision(collideable2);
-						collideable2->resolveCollision(collision);
-					}
-				}
-			}
+	std::vector<Actor*> deadActors;
+	for (auto actor : actors) {
+		if (actor->getState() == Actor::State::Dead) {
+			deadActors.emplace_back(actor);
 		}
+	}
+	for (auto deadActor : deadActors) {
+		delete deadActor;
 	}
 }
 
@@ -223,8 +274,9 @@ void Game::renderGraphics() {
 	if (gameHud != nullptr) {
 		gameHud->setText(messageDisplay);
 	}
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->render(mRenderer);
+
+	for (auto sprite : sprites) {
+		sprite->draw(mRenderer);
 	}
 
 	//Swap the front and backbuffers.
@@ -250,7 +302,7 @@ void Game::generateBall(Vector2D screenSize) {
 	gameObjects.push_back(gameBall);
 }
 
-Vector2D Game::getWindowSize() {
+const Vector2D Game::getWindowSize() const {
 	int w, h;
 	SDL_GetWindowSize(mWindow, &w, &h);
 	return Vector2D(w, h);
@@ -268,9 +320,9 @@ void Game::generateHud( ) {
 		Vector2D(0, 0),//top left
 		Vector2D(windowSize.getWidth(), windowSize.getHeight()/5.0f),//boundary Size
 		Vector2D( 16, 16),//letter size
-		&black,//container color
+		&black,//content color
 		8,//padding
-		&white,//content color
+		&white,//container color
 		4,//border width
 		mRenderer,
 		mFontTexture
@@ -279,28 +331,15 @@ void Game::generateHud( ) {
 	gameObjects.push_back(gameHud);
 }
 
-Paddle* Game::generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
+Paddle* Game::generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
 
-	int paddleWidth = screenSize.getWidth() / 20.0f;
-	int paddleHeight = screenSize.getHeight() / 5.0f;
-	int yPos = screenSize.getHeight() / 2.0f - paddleHeight / 2.0f;
-	SDL_Rect paddleShape = SDL_Rect{ xPos, yPos, paddleWidth, paddleHeight };
-	SDL_Rect screenDimens = SDL_Rect{ 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight()};
-	SDL_Color white = SDL_Color{ 128, 0, 255, 255 };
-	Vector2D centerDot = screenSize * 0.5f;
-	Vector2D paddleNormal = (centerDot - Vector2D(xPos, centerDot.getY())).getNormal();
 	Paddle* p = new Paddle(
+		this,
 		up,
 		down,
-		screenSize,
-		Vector2D(paddleWidth, paddleHeight),
-		Vector2D(xPos, screenSize.getHeight()/2),
-		paddleNormal,
-		&white,
-		screenSize.getHeight()
+		xOffset
 	);
-	p->setIsAlive(true);
-	gameObjects.push_back(p);
+	p->setState(Actor::State::Active);
 	return p;
 }
 
@@ -311,6 +350,44 @@ void Game::generateSomeObjects(unsigned int numObjects) {
 		SineWaveObject * obj = new SineWaveObject(generateParticle());
 		gameObjects.push_back(obj);
 	}
+}
+void Game::addActor(Actor* actor) {
+	if (isUpdatingActors) {
+		pendingActors.emplace_back(actor);
+	} else {
+		actors.emplace_back(actor);
+	}
+}
+
+bool Game::removeActor(Actor* actor) {
+
+	bool erasedPending = false;
+	bool erasedNonPending = false;
+	auto it = std::find(pendingActors.begin(), pendingActors.end(), actor);
+	if (it != pendingActors.end()) {
+		pendingActors.erase(it);
+		erasedPending = true;
+	}
+	if (!isUpdatingActors) {
+		auto itActors = std::find(actors.begin(), actors.end(), actor);
+		if (itActors != actors.end()) {
+			actors.erase(itActors);
+			erasedNonPending = true;
+		}
+	}
+
+	return erasedNonPending || erasedPending;
+}
+
+void Game::addSprite(SpriteComponent* newSprite) {
+	int drawOrder = newSprite->getDrawOrder();
+	auto currentSprite = sprites.begin();
+	for (; currentSprite != sprites.end(); ++currentSprite) {
+		if (drawOrder < (*currentSprite)->getDrawOrder()) {
+			break;
+		}
+	}
+	sprites.insert(currentSprite, newSprite);
 }
 
 SineWaveObject Game::generateParticle() {

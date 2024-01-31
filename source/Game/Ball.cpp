@@ -1,5 +1,5 @@
 #include "Ball.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "SDL/SDL.h"
 #include "Paddle.h"
 #include "Projectile.h"
@@ -146,7 +146,7 @@ void Ball::resolveCollision(ICollideable* other) {
 	Paddle* paddle = dynamic_cast<Paddle*>(other);
 	if (paddle) {
 		Vector2D ballCenter = position;
-		Vector2D paddleCenter = paddle->getCenter();
+		Vector2D paddleCenter = paddle->getPosition();
 		Vector2D newDirection = (ballCenter - paddleCenter).getNormal();
 		float previousSpeed = velocity.getMagnitude();
 		velocity = newDirection * previousSpeed;

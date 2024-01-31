@@ -1,5 +1,5 @@
 #include "Ball.h"
-#include "../MathConstants.h"
+#include "../MathUtils.h"
 #include "SDL/SDL.h"
 #include "Projectile.h"
 #include "Paddle.h"
@@ -35,10 +35,6 @@ void Projectile::resolveCollision(ICollideable* other) {
 		projectile->setIsAlive(false);
 	}
 }
-
-IGameObject* Projectile::getParent() {
-	return parent;
-};
 
 void Projectile::launch(Vector2D startingPosition) {
 	if (!getIsAlive()) {

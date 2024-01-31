@@ -22,8 +22,6 @@ public: //ICollideable overrides
     virtual void resolveCollision(ICollideable* other) override;
     void launch(Vector2D startingPosition);
 
-    virtual IGameObject* getParent() override;
-
 private: //Functions
     Projectile();
 

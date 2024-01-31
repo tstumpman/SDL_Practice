@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 //Included for debugging the engine
 #include "SineWaveObject.h"
@@ -13,9 +14,14 @@
 
 #include "Vector2d.h"
 
+
 //Forward Declarations
 struct SDL_Window;
 class SDL_Renderer;
+class SDL_Texture;
+class SpriteComponent;
+class InputComponent;
+class Actor;
 class Game {
 public://Functions
 	Game();
@@ -26,20 +32,22 @@ public://Functions
 	bool initialize();
 	void runLoop();
 	void shutdown();
+	void addActor(Actor* newActor);
+	void addSprite(SpriteComponent* newSprite);
+	bool removeActor(Actor* actor);
+	SDL_Texture* getTexture(const std::string& texturePath);
+
+	const Vector2D getWindowSize() const;
 
 private://Functions
 	//Copy Assignment operator
 	Game& operator=(const Game& other) {};
-
-	//Copy Constructor
-	Game(const Game& other) {};
 
 	void processInput();
 	float getDeltaTime(float previousTimestamp, float currentTimestamp, float maxDelta);
 	void updateGame(float deltaTime);
 	void generateOutput();
 	void renderAudio();
-	Vector2D getWindowSize();
 	void renderGraphics();
 	void logSdlError( std::string errorMessage);
 	void logSdlError(std::vector<std::string> messages);
@@ -52,6 +60,12 @@ private://Data
 	SDL_Texture* mFontTexture;
 	bool isRunning;
 	bool isQuitting;
+	bool isUpdatingActors;
+	std::vector<Actor*> actors;
+	std::vector<Actor*> pendingActors;
+	std::vector<SpriteComponent*> sprites;
+	std::map<std::string, SDL_Texture*> loadedTextures;
+	
 
 private://Temporary data for debugging purposes only
 	std::vector<IGameObject*> gameObjects;
@@ -60,7 +74,7 @@ private://Temporary data for debugging purposes only
 	Paddle* leftPaddle;
 	Paddle* rightPaddle;
 	void generateSomeObjects(unsigned int numObjects);
-	Paddle* generatePaddle(int xPos, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
+	Paddle* generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
 	void generateBall(Vector2D screenSize);
 	void generateHud();
 	SineWaveObject generateParticle();
