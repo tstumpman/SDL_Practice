@@ -4,11 +4,14 @@
 #include "../VideoConstants.h"
 #include "../MathUtils.h"
 #include "Ball.h"
+#include "TextChunk.h"
 #include "Vector2DTest.h"
 #include "Actor.h"
 #include "Color.h"
+#include "MonospaceCharacter.h"
 #include "inputcomponent.h"
 #include "SpriteComponent.h"
+#include "CollisionComponent.h"
 using namespace std;
 
 Game::Game() {
@@ -17,7 +20,6 @@ Game::Game() {
 	mWindow = nullptr;
 	mRenderer = nullptr;
 	mFontTexture = nullptr;
-	gameHud = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
 	gameObjects = std::vector<IGameObject*>();
@@ -25,18 +27,14 @@ Game::Game() {
 }
 
 Game::~Game() {
-
+	shutdown();
 	for (unsigned int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i] == nullptr) continue;
 		delete gameObjects[i];
 		gameObjects[i] = nullptr;
 	}
 
-	//Unload the textures;
-	//Iterate through all the loaded textures and destroy them
-	for (auto& texturePair : loadedTextures) {
-		SDL_DestroyTexture(texturePair.second);
-	}
+
 	loadedTextures.clear();
 }
 
@@ -96,10 +94,8 @@ bool Game::initialize() {
 		return false;
 	}
 
-	rightPaddle = generatePaddle(1, windowSize, SDL_SCANCODE_I, SDL_SCANCODE_K);
-	leftPaddle = generatePaddle(0, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S);
+	generatePaddle(0.4, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
 	generateBall(windowSize);
-	
 
 	generateHud();
 	return true;
@@ -175,13 +171,12 @@ void Game::shutdown() {
 	while (!pendingActors.empty()) {
 		delete pendingActors.back();
 	}
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		if (gameObjects[i] == nullptr) continue;
-		delete gameObjects[i];
-		gameObjects[i] = nullptr;
-	}
+
 	//Shutdown in reverse order of creation.  Last in, first out.
-	SDL_DestroyTexture(mFontTexture);
+	//Iterate through all the loaded textures and destroy them
+	for (auto& texturePair : loadedTextures) {
+		SDL_DestroyTexture(texturePair.second);
+	}
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
@@ -254,10 +249,6 @@ void Game::renderAudio() {
 }
 
 void Game::renderGraphics() {
-	int windowHeight = 0;
-	int windowWidth = 0;
-	SDL_GetWindowSize(mWindow, &windowWidth, &windowHeight);
-
 	//clear the backbuffer
 	SDL_SetRenderDrawColor(
 		mRenderer,	//
@@ -267,13 +258,6 @@ void Game::renderGraphics() {
 		0			//A
 	);
 	SDL_RenderClear(mRenderer);
-	//Draw the scene.
-	//std::string messageDisplay = std::to_string(SDL_GetTicks()/1000);
-	std::string messageDisplay = "What a horrible fricken night to be havin' a curse or somethin'. 0123456789";
-	//std::string messageDisplay = "Short message";
-	if (gameHud != nullptr) {
-		gameHud->setText(messageDisplay);
-	}
 
 	for (auto sprite : sprites) {
 		sprite->draw(mRenderer);
@@ -309,48 +293,24 @@ const Vector2D Game::getWindowSize() const {
 }
 
 void Game::generateHud( ) {
-	SDL_Color red = SDL_Color{ 255, 0, 0, 255 };
-	SDL_Color blue = SDL_Color{ 0, 255, 0, 255 };
-	SDL_Color green = SDL_Color{ 0, 0, 255, 255 };
-	SDL_Color white = SDL_Color{ 255, 255, 255, 255 };
-	SDL_Color black = SDL_Color{ 0, 0, 0, 255 };
-	Vector2D windowSize = getWindowSize();
-	mFontTexture = IMG_LoadTexture(mRenderer, "resources/monospace_alpha.png");
-	gameHud = new TextChunk(
-		Vector2D(0, 0),//top left
-		Vector2D(windowSize.getWidth(), windowSize.getHeight()/5.0f),//boundary Size
-		Vector2D( 16, 16),//letter size
-		&black,//content color
-		8,//padding
-		&white,//container color
-		4,//border width
-		mRenderer,
-		mFontTexture
-	);
-	gameHud->setIsAlive(true);
-	gameObjects.push_back(gameHud);
+	Vector2D textBoxSize = this->getWindowSize() * Vector2D(1, 1.0 / 4.0);
+	SDL_Color blue = SDL_Color{ 0, 0, 255, 255 };
+	auto textChunk = new TextChunk(this, textBoxSize, 20, 2, "resources/monospace_alpha.png", &blue );
+	textChunk->setText("Here is some text. EAT IT");
+
 }
 
-Paddle* Game::generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down) {
-
-	Paddle* p = new Paddle(
+void Game::generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right ) {
+	new Paddle(
 		this,
 		up,
 		down,
+		left,
+		right,
 		xOffset
 	);
-	p->setState(Actor::State::Active);
-	return p;
 }
 
-void Game::generateSomeObjects(unsigned int numObjects) {
-	srand(SDL_GetTicks());
-
-	for (unsigned int i = 0; i < numObjects; i++) {
-		SineWaveObject * obj = new SineWaveObject(generateParticle());
-		gameObjects.push_back(obj);
-	}
-}
 void Game::addActor(Actor* actor) {
 	if (isUpdatingActors) {
 		pendingActors.emplace_back(actor);
@@ -360,14 +320,15 @@ void Game::addActor(Actor* actor) {
 }
 
 bool Game::removeActor(Actor* actor) {
-
 	bool erasedPending = false;
 	bool erasedNonPending = false;
+
 	auto it = std::find(pendingActors.begin(), pendingActors.end(), actor);
 	if (it != pendingActors.end()) {
 		pendingActors.erase(it);
 		erasedPending = true;
 	}
+
 	if (!isUpdatingActors) {
 		auto itActors = std::find(actors.begin(), actors.end(), actor);
 		if (itActors != actors.end()) {
@@ -379,15 +340,27 @@ bool Game::removeActor(Actor* actor) {
 	return erasedNonPending || erasedPending;
 }
 
-void Game::addSprite(SpriteComponent* newSprite) {
-	int drawOrder = newSprite->getDrawOrder();
+
+void Game::addSprite(SpriteComponent* newComponent) {
+	int drawOrder = newComponent->getDrawOrder();
 	auto currentSprite = sprites.begin();
 	for (; currentSprite != sprites.end(); ++currentSprite) {
 		if (drawOrder < (*currentSprite)->getDrawOrder()) {
 			break;
 		}
 	}
-	sprites.insert(currentSprite, newSprite);
+	sprites.insert(currentSprite, newComponent);
+}
+
+void Game::addCollider(CollisionComponent* newComponent) {
+	int drawOrder = newComponent->getUpdateOrder();
+	auto currentComponent = colliders.begin();
+	for (; currentComponent != colliders.end(); ++currentComponent) {
+		if (drawOrder < (*currentComponent)->getUpdateOrder()) {
+			break;
+		}
+	}
+	colliders.insert(currentComponent, newComponent);
 }
 
 SineWaveObject Game::generateParticle() {

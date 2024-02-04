@@ -19,6 +19,9 @@ public:
 	int getTextureWidth() const;
 	void setSourceRect(Rect sourceRect);
 	void setDrawSize(Vector2D drawSize);
+	SDL_Texture* getTexture() const;
+	Vector2D getDrawSize() const;
+	Vector2D getTextureSize() const;
 
 protected:
 	SDL_Texture* texture;

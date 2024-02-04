@@ -191,6 +191,7 @@ xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Com
     <ClCompile Include="source\Game\game.cpp" />
     <ClCompile Include="source\Game\Grid.cpp" />
     <ClCompile Include="source\Game\InputComponent.cpp" />
+    <ClCompile Include="source\Game\MonospaceCharacter.cpp" />
     <ClCompile Include="source\Game\MoveComponent.cpp" />
     <ClCompile Include="source\Game\Paddle.cpp" />
     <ClCompile Include="source\Game\Projectile.cpp" />
@@ -213,6 +214,7 @@ xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Com
     <ClInclude Include="source\Game\ICollideable.h" />
     <ClInclude Include="source\Game\IGameObject.h" />
     <ClInclude Include="source\Game\InputComponent.h" />
+    <ClInclude Include="source\Game\MonospaceCharacter.h" />
     <ClInclude Include="source\Game\MoveComponent.h" />
     <ClInclude Include="source\Game\Paddle.h" />
     <ClInclude Include="source\Game\Projectile.h" />

@@ -17,7 +17,7 @@ Rect::Rect(
 	float width,
 	float height
 ) {
-	this->origin = Vector2D(top, left);
+	this->origin = Vector2D(left, top);
 	this->size = Vector2D(abs(width), abs(height));
 }
 
@@ -92,6 +92,6 @@ Vector2D Rect::getOrigin() const {
 	return this->origin;
 }
 
-Vector2D Rect::getSize() {
-	return this->size;
+Vector2D Rect::getSize() const {
+	return this->size.abs();
 }

@@ -36,11 +36,12 @@ public:
 	float getRotation() const;
 	Vector2D getPosition() const;
 	Vector2D getForwardVector() const;
+	Game* getGame() const;
 
 	void setState(State state);
 	void setScale(float newScale);
 	void setRotation(float newRotation);
-	void setPosition(Vector2D newPosition);
+	virtual void setPosition(Vector2D newPosition);
 	void setForwardVector(Vector2D newVector);
 
 	void rotateBy(float degrees);

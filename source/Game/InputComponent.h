@@ -18,6 +18,8 @@ public:
 	void setBackwardKey(int key);
 	void setRotateRightKey(int key);
 	void setRotateLeftKey(int key);
+	void setLeftKey(int key);
+	void setRightKey(int key);
 
 protected:
 
@@ -28,6 +30,8 @@ private:
 	int backKey;
 	int rotateLeftKey;
 	int rotateRightKey;
+	int leftKey;
+	int rightKey;
 };
 
 #endif

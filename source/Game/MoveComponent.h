@@ -12,13 +12,16 @@ public:
 
 	float getAngularSpeed() const;
 	float getForwardSpeed() const; 
+	float getHorizontalSpeed() const; 
 	void setAngularSpeed(float speed);
 	void setForwardSpeed(float speed);
+	void setHorizontalSpeed(float speed);
 
 protected:
 private:
 	float angularSpeed;
 	float forwardSpeed;
+	float horizontalSpeed;
 };
 
 #endif

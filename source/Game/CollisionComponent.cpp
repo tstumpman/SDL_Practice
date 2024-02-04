@@ -4,10 +4,10 @@
 #include "../MathUtils.h"
 
 CollisionComponent::CollisionComponent(Actor* owner, CollisionLayer layer) :
-	Component(owner) 
+	Component(owner)
 {
 	this->collisionLayer = layer;
-	this->collisionRect = Rect();
+	this->size = Vector2D();
 }
 
 void CollisionComponent::update(float deltaTime) {
@@ -17,6 +17,7 @@ void CollisionComponent::update(float deltaTime) {
 void CollisionComponent::handleCollision(CollisionComponent* other) {
 
 }
+
 bool CollisionComponent::collidesWith(CollisionComponent* other) {
 	if (owner->getState() != Actor::Active) return false;
 	if (this->collisionLayer == CollisionLayer::COLLISION_OFF) return false;
@@ -30,10 +31,10 @@ void CollisionComponent::setCollisionLayer(CollisionLayer newLayer) {
 	this->collisionLayer = newLayer;
 }
 
-void CollisionComponent::setRect(Rect rect) {
-	this->collisionRect = rect;
+void CollisionComponent::setSize(Vector2D size) {
+	this->size = size;
 }
 
 const Rect CollisionComponent::getRect() const {
-	return this->collisionRect;
+	return Rect(owner->getPosition(), this->size);
 }

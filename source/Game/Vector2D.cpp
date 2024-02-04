@@ -24,6 +24,10 @@ Vector2D Vector2D::operator+(const Vector2D& other) const {
 	return Vector2D(this->x + other.x, this->y + other.y);
 }
 
+Vector2D Vector2D::operator*(const Vector2D& other) const {
+	return Vector2D(this->x * other.x, this->y * other.y);
+}
+
 Vector2D operator*(float scalar, const Vector2D& vector) {
 	return vector * scalar;
 }
@@ -126,6 +130,17 @@ Vector2D Vector2D::getNormal() const {
 		return Vector2D(x / length, y / length);
 	}
 	return Vector2D(0.0f, 0.0f);
+}
+
+Vector2D Vector2D::getAxisAligned() const {
+	float xAxis = 0.0f, yAxis = 0.0f;
+
+	if (x > 0) xAxis = 1;
+	if (x < 0) xAxis = -1;
+	if (y > 0) yAxis = 1;
+	if (y < 0) yAxis = -1;
+
+	return Vector2D(xAxis, yAxis);
 }
 
 Vector2D Vector2D::getRotation(const float degrees) const {

@@ -47,6 +47,7 @@ Actor::~Actor() {
 
 void Actor::update(float deltaTime) {
 	updateComponents(deltaTime);
+	updateActor(deltaTime);
 }
 
 void Actor::updateComponents(float deltaTime) {
@@ -140,5 +141,9 @@ void Actor::rotateBy(float degrees) {
 }
 
 void Actor::translateBy(Vector2D offset) {
-	this->position = position + offset;
+	this->setPosition(position + offset);
+}
+
+Game* Actor::getGame() const {
+	return game;
 }

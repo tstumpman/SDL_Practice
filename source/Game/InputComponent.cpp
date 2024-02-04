@@ -9,6 +9,8 @@ InputComponent::InputComponent(Actor* owner, int updateOrder) : MoveComponent(ow
 	this->forwardKey = 255;
 	this->rotateLeftKey = 255;
 	this->rotateRightKey = 255;
+	this->leftKey = 255;
+	this->rightKey = 255;
 }
 
 void InputComponent::setForwardKey(int key) {
@@ -17,6 +19,14 @@ void InputComponent::setForwardKey(int key) {
 
 void InputComponent::setBackwardKey(int key) {
 	this->backKey = key;
+}
+
+void InputComponent::setLeftKey(int key) {
+	this->leftKey = key;
+}
+
+void InputComponent::setRightKey(int key) {
+	this->rightKey = key;
 }
 
 void InputComponent::setRotateRightKey(int key) {
@@ -28,22 +38,31 @@ void InputComponent:: setRotateLeftKey(int key) {
 }
 
 void InputComponent::processInput(const uint8_t* keystate) {
-	
+	float forwardSpeed = 0.0f;
 	if (keystate[forwardKey]) {
-		this->setForwardSpeed(maxForwardSpeed);
-	} else if (keystate[backKey]) {
-		this->setForwardSpeed(-maxForwardSpeed);
-	} else {
-		this->setForwardSpeed(0.0f);
+		forwardSpeed += maxForwardSpeed;
+	} 
+	if (keystate[backKey]) {
+		forwardSpeed -= maxForwardSpeed;
 	}
+	this->setForwardSpeed(forwardSpeed);
 
-	if (keystate[rotateLeftKey]) {
-		this->setAngularSpeed(maxAngularSpeed);
-	} else if (keystate[rotateRightKey]) {
-		this->setAngularSpeed(-maxAngularSpeed);
-	} else {
-		this->setAngularSpeed(0.0f);
+	float horizontalSpeed = 0.0f;
+	if (keystate[rightKey]) {
+		horizontalSpeed += maxForwardSpeed;
 	}
+	if (keystate[leftKey]) {
+		horizontalSpeed -= maxForwardSpeed;
+	}
+	this->setHorizontalSpeed(horizontalSpeed);
+	float angularSpeed = 0.0f;
+	if (keystate[rotateLeftKey]) {
+		angularSpeed += maxAngularSpeed;
+	}
+	if (keystate[rotateRightKey]) {
+		angularSpeed -= maxAngularSpeed;
+	}
+	this->setAngularSpeed(angularSpeed);
 }
 
 float InputComponent::getMaxForwardSpeed() const {

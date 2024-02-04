@@ -19,13 +19,13 @@ public:
 	bool collidesWith(CollisionComponent* other);
 
 	void setCollisionLayer(CollisionLayer layer);
-	void setRect(Rect rect);
+	void setSize(Vector2D rect);
 
 	const Rect getRect() const;
 
 protected:
 	CollisionLayer collisionLayer;
-	Rect collisionRect;
+	Vector2D size;
 
 private:
 };

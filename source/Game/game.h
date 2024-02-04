@@ -9,16 +9,14 @@
 #include "SineWaveObject.h"
 #include "Paddle.h"
 #include "Ball.h"
-#include "TextChunk.h"
 #include "SDL/SDL_scancode.h"
-
 #include "Vector2d.h"
 
 
 //Forward Declarations
 struct SDL_Window;
 class SDL_Renderer;
-class SDL_Texture;
+struct SDL_Texture;
 class SpriteComponent;
 class InputComponent;
 class Actor;
@@ -34,6 +32,7 @@ public://Functions
 	void shutdown();
 	void addActor(Actor* newActor);
 	void addSprite(SpriteComponent* newSprite);
+	void addCollider(CollisionComponent* newSprite);
 	bool removeActor(Actor* actor);
 	SDL_Texture* getTexture(const std::string& texturePath);
 
@@ -64,17 +63,14 @@ private://Data
 	std::vector<Actor*> actors;
 	std::vector<Actor*> pendingActors;
 	std::vector<SpriteComponent*> sprites;
+	std::vector<CollisionComponent*> colliders;
 	std::map<std::string, SDL_Texture*> loadedTextures;
 	
 
 private://Temporary data for debugging purposes only
 	std::vector<IGameObject*> gameObjects;
 	Ball* gameBall;
-	TextChunk* gameHud;
-	Paddle* leftPaddle;
-	Paddle* rightPaddle;
-	void generateSomeObjects(unsigned int numObjects);
-	Paddle* generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down);
+	void generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right);
 	void generateBall(Vector2D screenSize);
 	void generateHud();
 	SineWaveObject generateParticle();

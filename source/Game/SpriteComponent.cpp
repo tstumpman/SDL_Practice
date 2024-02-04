@@ -1,6 +1,7 @@
 #include "SpriteComponent.h"
 #include "Actor.h"
 #include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
 #include "../MathUtils.h"
 
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder) :
@@ -78,4 +79,23 @@ void SpriteComponent::draw(SDL_Renderer* renderer) {
 
 int SpriteComponent::getDrawOrder() const {
 	return this->drawOrder;
+}
+
+Vector2D SpriteComponent::getDrawSize() const {
+	return drawSize;
+}
+
+Vector2D SpriteComponent::getTextureSize() const {
+	return Vector2D(textureWidth, textureHeight);
+}
+
+SDL_Texture* SpriteComponent::getTexture() const {
+	return this->texture;
+}
+
+int SpriteComponent::getTextureHeight() const {
+	return this->textureHeight;
+}
+int SpriteComponent::getTextureWidth() const {
+	return this->textureWidth;
 }

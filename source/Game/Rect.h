@@ -11,10 +11,10 @@ public:
 		Vector2D size
 	);
 	Rect(
-		float top, 
 		float left,
-		float height,
-		float width
+		float top, 
+		float width,
+		float height
 	);
 	Rect();
 
@@ -26,7 +26,7 @@ public:
 	float perimeter() const;
 	Vector2D getCenterPoint() const;
 	Vector2D getOrigin() const;
-	Vector2D getSize();
+	Vector2D getSize() const;
 	float getDiagonal() const;
 	void scale(float diagonal);
 

@@ -14,6 +14,7 @@ public:
 	Vector2D operator+(const Vector2D& other) const;
 	Vector2D operator-(const Vector2D& other) const;
 	Vector2D operator*(const float scalar) const;
+	Vector2D operator*(const Vector2D& other) const;
 	friend Vector2D operator*( float scalar, const Vector2D& vector);
 
 	void clamp(const Vector2D& minimum, const Vector2D& maximum);
@@ -26,6 +27,7 @@ public:
 	Vector2D getReflection(const Vector2D& lineNormal) const;
 	Vector2D getRotation(const float degrees) const;
 	Vector2D getNormal() const;
+	Vector2D getAxisAligned() const;
 	float getMagnitude() const;
 	float getX() const;
 	float getY() const;

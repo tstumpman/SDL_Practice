@@ -18,6 +18,8 @@ public:
 		Game* game,
 		unsigned char upKeyboardCode,
 		unsigned char downKeyboardCode,
+		unsigned char leftKeyboardCode,
+		unsigned char rightKeyboardCode,
 		float screenOffset
 	);
 
@@ -31,7 +33,6 @@ public: //GameObject overrides
 	virtual void updateActor(float deltaTime) override;
 	virtual void actorInput(const uint8_t* keystate);
 
-
 private: //Functions
 	Paddle();
 
@@ -39,8 +40,8 @@ private:
 	SpriteComponent* spriteComponent;
 	InputComponent* inputComponent;
 	CollisionComponent* collisionComponent;
-	unsigned char upKeyboardCode, downKeyboardCode;
-	float speed;
+
+protected:
 };
 
 #endif
