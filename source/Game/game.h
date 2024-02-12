@@ -6,9 +6,7 @@
 #include <map>
 
 //Included for debugging the engine
-#include "SineWaveObject.h"
-#include "Paddle.h"
-#include "Ball.h"
+#include "FallingBlock.h"
 #include "SDL/SDL_scancode.h"
 #include "Vector2d.h"
 
@@ -68,12 +66,8 @@ private://Data
 	
 
 private://Temporary data for debugging purposes only
-	std::vector<IGameObject*> gameObjects;
-	Ball* gameBall;
 	void generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right);
-	void generateBall(Vector2D screenSize);
 	void generateHud();
-	SineWaveObject generateParticle();
 protected:
 
 };

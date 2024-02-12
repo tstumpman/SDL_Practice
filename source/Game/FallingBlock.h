@@ -1,8 +1,6 @@
-#ifndef C_PADDLE
-#define C_PADDLE
-#include "ICollideable.h"
+#ifndef C_FALLING_BLOCK_H
+#define C_FALLING_BLOCK_H
 #include "Vector2D.h"
-#include "Projectile.h"
 #include "Color.h"
 #include "Actor.h"
 
@@ -10,11 +8,11 @@ class Game;
 class SpriteComponent;
 class InputComponent;
 class CollisionComponent;
-class Paddle : 
+class FallingBlock : 
 	public Actor {
 public: 
 	//Default constructor
-	Paddle(
+	FallingBlock(
 		Game* game,
 		unsigned char upKeyboardCode,
 		unsigned char downKeyboardCode,
@@ -24,17 +22,17 @@ public:
 	);
 
 	//Copy Constructor
-	Paddle(const Paddle& other);
+	FallingBlock(const FallingBlock& other);
 
 	//Destructor
-	~Paddle();
+	~FallingBlock();
 
 public: //GameObject overrides
 	virtual void updateActor(float deltaTime) override;
 	virtual void actorInput(const uint8_t* keystate);
 
 private: //Functions
-	Paddle();
+	FallingBlock();
 
 private:
 	SpriteComponent* spriteComponent;

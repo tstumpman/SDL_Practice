@@ -5,10 +5,8 @@
 #include "SDL/SDL_render.h"
 #include "SDL/SDL_Rect.h"
 #include "MoveComponent.h"
-#include "Paddle.h"
 #include "MonospaceCharacter.h"
 #include "InputComponent.h"
-#include "Projectile.h"
 
 //Constructor
 TextChunk::TextChunk(
@@ -28,7 +26,7 @@ TextChunk::TextChunk(
 	inputComponent->setBackwardKey(SDL_SCANCODE_G);
 	inputComponent->setRotateLeftKey(SDL_SCANCODE_F);
 	inputComponent->setRotateRightKey(SDL_SCANCODE_H);
-	this->inputComponent->setMaxForwardSpeed(game->getWindowSize().getHeight() / 5.0f);
+	this->inputComponent->setMaxForwardSpeed(game->getWindowSize().y / 5.0f);
 	this->inputComponent->setMaxAngularSpeed(360.0f);
 
 
@@ -106,8 +104,8 @@ std::vector<Rect> TextChunk::calculateLetterSlots(
 	unsigned int cols,
 	unsigned int rows
 ) {
-	float cellWidth = boundary.getSize().getWidth() / (float)cols;
-	float cellHeight = boundary.getSize().getHeight() / (float)rows;
+	float cellWidth = boundary.getSize().x / (float)cols;
+	float cellHeight = boundary.getSize().y / (float)rows;
 	std::vector<Rect> returnMe = std::vector<Rect>();
 	returnMe.resize(rows * cols);
 
@@ -116,8 +114,8 @@ std::vector<Rect> TextChunk::calculateLetterSlots(
 		for (unsigned int c = 0; c < cols; c++) {
 			returnMe[index] =
 				Rect(
-					int((c * cellWidth) + boundary.getOrigin().getX()),
-					int((r * cellHeight) + boundary.getOrigin().getY()),
+					int((c * cellWidth) + boundary.getOrigin().x),
+					int((r * cellHeight) + boundary.getOrigin().y),
 					int(cellWidth),
 					int(cellHeight)
 				);

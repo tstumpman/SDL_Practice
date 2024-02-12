@@ -3,11 +3,11 @@
 #include "SDL/SDL_Image.h"
 #include "../VideoConstants.h"
 #include "../MathUtils.h"
-#include "Ball.h"
 #include "TextChunk.h"
 #include "Vector2DTest.h"
 #include "Actor.h"
 #include "Color.h"
+#include "FallingBlockGrid.h"
 #include "MonospaceCharacter.h"
 #include "inputcomponent.h"
 #include "SpriteComponent.h"
@@ -22,18 +22,11 @@ Game::Game() {
 	mFontTexture = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
-	gameObjects = std::vector<IGameObject*>();
 	loadedTextures = std::map<std::string, SDL_Texture*>();
 }
 
 Game::~Game() {
 	shutdown();
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		if (gameObjects[i] == nullptr) continue;
-		delete gameObjects[i];
-		gameObjects[i] = nullptr;
-	}
-
 
 	loadedTextures.clear();
 }
@@ -59,8 +52,8 @@ bool Game::initialize() {
 		"Window Title Goes Here",	//Window Title
 		100,						//Top Left X coord
 		100,						//Top Left Y coord
-		windowSize.getWidth(),		//Window Width
-		windowSize.getHeight(),		//Window Height
+		windowSize.x,		//Window Width
+		windowSize.y,		//Window Height
 		sdlWindowOptions			//Window flags
 	);
 
@@ -95,7 +88,6 @@ bool Game::initialize() {
 	}
 
 	generatePaddle(0.4, windowSize, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
-	generateBall(windowSize);
 
 	generateHud();
 	return true;
@@ -200,9 +192,6 @@ void Game::processInput() {
 		isRunning = false;
 	}
 
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->processInput();
-	}
 	isUpdatingActors = true;
 	for (auto actor : actors) {
 		actor->processInput(keyboardState);
@@ -224,9 +213,6 @@ void Game::updateGame(float deltaTime) {
 	}
 	pendingActors.clear();
 
-	for (unsigned int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->update(deltaTime);
-	}
 
 	std::vector<Actor*> deadActors;
 	for (auto actor : actors) {
@@ -267,25 +253,6 @@ void Game::renderGraphics() {
 	SDL_RenderPresent(mRenderer);
 }
 
-void Game::generateBall(Vector2D screenSize) {
-	SDL_Color white = SDL_Color{ 255, 128, 0, 255 };
-	float startingSpeed = screenSize.getWidth() / 2.0f;
-	Vector2D startingVelocity = Vector2D(rand() % 1000, rand() % 1000).getNormal() * startingSpeed;
-	float ballSize = screenSize.getMagnitude() * 0.05f;
-	gameBall = new Ball(
-		Vector2D(-50, 0),//top left
-		Vector2D(screenSize.getX()+50, screenSize.getY()),//bottom right
-		Vector2D(ballSize, ballSize),//size
-		screenSize * 0.5f,//position
-		startingVelocity,//velocity
-		&white,
-		startingSpeed
-	);
-	gameBall->setIsAlive(true); 
-
-	gameObjects.push_back(gameBall);
-}
-
 const Vector2D Game::getWindowSize() const {
 	int w, h;
 	SDL_GetWindowSize(mWindow, &w, &h);
@@ -298,10 +265,32 @@ void Game::generateHud( ) {
 	auto textChunk = new TextChunk(this, textBoxSize, 20, 2, "resources/monospace_alpha.png", &blue );
 	textChunk->setText("Here is some text. EAT IT");
 
+	Vector2D gridSize = this->getWindowSize();
+	CartesianCoordinate gridDimensions = CartesianCoordinate(16, 9);
+	FallingBlockGrid* grid = new FallingBlockGrid(this, gridSize, gridDimensions);
+	CartesianCoordinate index2d = CartesianCoordinate(0, 0);
+	Rect screenRect = Rect(
+		grid->getCellPosition(index2d),
+		grid->getCellSize()
+	);
+	MonospaceCharacter * ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
+	ch->setCharacter(0);
+	grid->setItem(index2d, ch);
+
+	index2d = CartesianCoordinate(1,1);
+	screenRect = Rect(
+		grid->getCellPosition(index2d),
+		grid->getCellSize()
+	);
+	ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
+	ch->setCharacter('a');
+	grid->setItem(index2d, ch);
+
 }
 
+
 void Game::generatePaddle(float xOffset, Vector2D screenSize, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right ) {
-	new Paddle(
+	new FallingBlock(
 		this,
 		up,
 		down,
@@ -361,24 +350,4 @@ void Game::addCollider(CollisionComponent* newComponent) {
 		}
 	}
 	colliders.insert(currentComponent, newComponent);
-}
-
-SineWaveObject Game::generateParticle() {
-	int screenHeight = GBA_HEIGHT * 3;
-	int screenWidth = GBA_WIDTH * 3;
-	uint8_t r = rand() % 255;
-	uint8_t g = rand() % 255;
-	uint8_t b = rand() % 255;
-	SDL_Color color = SDL_Color{ r, g, b, 255 };
-	SDL_Rect shape = SDL_Rect{ rand() % screenHeight, 0, rand() % 10 + 30, rand() % 10 + 30 };
-	SDL_Rect boundary = SDL_Rect{ 0, 0, screenWidth, screenHeight };
-	return SineWaveObject(
-		rand() % screenHeight,//Anchor
-		(rand() % screenWidth) * 0.5 +1.0f,//speed
-		(rand() % screenHeight)*0.5f,//amplitude
-		rand() % 100 / 50.0f,//frequency
-		&shape,//height
-		&boundary,//width
-		&color//color
-	);
 }

@@ -47,19 +47,19 @@ void SpriteComponent::setDrawSize(Vector2D size) {
 void SpriteComponent::draw(SDL_Renderer* renderer) {
 	if (texture != nullptr) {
 		SDL_Rect destinationRect = SDL_Rect();
-		destinationRect.w = drawSize.getWidth() * owner->getScale();
-		destinationRect.h = drawSize.getHeight() * owner->getScale();
-		destinationRect.x = owner->getPosition().getX();
-		destinationRect.y = owner->getPosition().getY();
+		destinationRect.w = drawSize.x * owner->getScale();
+		destinationRect.h = drawSize.y * owner->getScale();
+		destinationRect.x = owner->getPosition().x;
+		destinationRect.y = owner->getPosition().y;
 
 		SDL_Rect temp;
 		SDL_Rect* b = nullptr;
 		if (sourceRect != nullptr) {
 			temp = SDL_Rect{
-				(int)sourceRect->getOrigin().getX(),
-				(int)sourceRect->getOrigin().getY(),
-				(int)sourceRect->getSize().getWidth(),
-				(int)sourceRect->getSize().getHeight(),
+				(int)sourceRect->getOrigin().x,
+				(int)sourceRect->getOrigin().y,
+				(int)sourceRect->getSize().x,
+				(int)sourceRect->getSize().y,
 			};
 
 			b = &temp;

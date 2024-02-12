@@ -104,8 +104,8 @@ void Vector2D::clampMagnitude(const float maximum) {
 	}
 	if (magnitude >  maximum ) {
 		Vector2D normal = getNormal();
-		x = normal.getX() * maximum;
-		y = normal.getY() * maximum;
+		x = normal.x * maximum;
+		y = normal.y * maximum;
 	}
 }
 
@@ -154,20 +154,4 @@ Vector2D Vector2D::getRotation(const float degrees) const {
 
 float Vector2D::getMagnitude() const {
 	return sqrt(x * x + y * y);
-}
-
-float Vector2D::getX() const {
-	return x;
-}
-
-float Vector2D::getY() const {
-	return y;
-}
-
-float Vector2D::getWidth() const {
-	return x;
-}
-
-float Vector2D::getHeight() const {
-	return y;
 }

@@ -16,7 +16,7 @@ int Vector2DTest::testReflectLeft() {
 	Vector2D unitVectorPointsRight = Vector2D(1.0f, 0.0f);
 	Vector2D normalVectorPointsLeft = Vector2D(-1, 0);
 	Vector2D reflection = unitVectorPointsRight.getReflection(normalVectorPointsLeft);
-	if (isVeryCloseTo(reflection.getX(), -1.0f)) {
+	if (isVeryCloseTo(reflection.x, -1.0f)) {
 		return 0;
 	}
 	return 1;
@@ -59,10 +59,10 @@ int Vector2DTest::testClampPositionTopLeft() {
 
 	initPosition.clamp(minBoundary, maxBoundary);
 	int result = 0;
-	if (!isVeryCloseTo(initPosition.getX(), 10.0f)) {
+	if (!isVeryCloseTo(initPosition.x, 10.0f)) {
 		result++;
 	}
-	if (!isVeryCloseTo(initPosition.getY(), 10.0f)) {
+	if (!isVeryCloseTo(initPosition.y, 10.0f)) {
 		result++;
 	}
 	return result;

@@ -1,4 +1,4 @@
-#include "Paddle.h"
+#include "FallingBlock.h"
 #include "../MathUtils.h"
 #include "SDL/SDL.h"
 #include "SpriteComponent.h"
@@ -10,7 +10,7 @@
 #include "game.h"
 
 //Constructor
-Paddle::Paddle(
+FallingBlock::FallingBlock(
 	Game* game,
 	unsigned char upKeyboardCode,
 	unsigned char downKeyboardCode,
@@ -20,13 +20,13 @@ Paddle::Paddle(
 ) : Actor(game) {
 
 	Vector2D screenSize = game->getWindowSize();
-	int paddleWidth = screenSize.getWidth() / 20.0f;
-	int paddleHeight = screenSize.getHeight() / 5.0f;
+	int fallingBlockWidth = screenSize.x / 20.0f;
+	int fallingBlockHeight = screenSize.y / 5.0f;
 	Rect body = Rect(
-		screenSize.getWidth() * screenOffset,
-		screenSize.getHeight() / 2.0f - paddleHeight / 2.0f,
-		paddleWidth,
-		paddleHeight
+		screenSize.x * screenOffset,
+		screenSize.y / 2.0f - fallingBlockHeight / 2.0f,
+		fallingBlockWidth,
+		fallingBlockHeight
 	);
 	this->setForwardVector(Vector2D(0, -1).getNormal());
 	this->setPosition(body.getOrigin());
@@ -37,12 +37,14 @@ Paddle::Paddle(
 	spriteComponent->setTexture(game->getTexture("resources/paddle.png"));
 
 	this->inputComponent = new InputComponent(this);
-	this->inputComponent->setMaxForwardSpeed(game->getWindowSize().getHeight() / 5.0f);
+	this->inputComponent->setMaxForwardSpeed(game->getWindowSize().x / 5.0f);
 	this->inputComponent->setMaxAngularSpeed(360.0f);
 	inputComponent->setForwardKey(upKeyboardCode);
 	inputComponent->setBackwardKey(downKeyboardCode);
-	inputComponent->setLeftKey(leftKeyboardCode);
-	inputComponent->setRightKey(rightKeyboardCode);
+	//inputComponent->setLeftKey(leftKeyboardCode);
+	//inputComponent->setRightKey(rightKeyboardCode);
+	inputComponent->setRotateLeftKey(leftKeyboardCode);
+	inputComponent->setRotateRightKey(rightKeyboardCode);
 
 	this->collisionComponent = new CollisionComponent(this);
 	collisionComponent->setSize( body.getSize() );
@@ -52,7 +54,7 @@ Paddle::Paddle(
 }
 
 //Copy Constructor
-Paddle::Paddle(const Paddle& other) : Actor(other) {
+FallingBlock::FallingBlock(const FallingBlock& other) : Actor(other) {
 
 	this->setForwardVector(Vector2D(0, -1).getNormal());
 
@@ -73,7 +75,7 @@ Paddle::Paddle(const Paddle& other) : Actor(other) {
 }
 
 //Destructor
-Paddle::~Paddle() {
+FallingBlock::~FallingBlock() {
 	removeComponent(spriteComponent);
 	removeComponent(inputComponent);
 	removeComponent(collisionComponent);
@@ -82,11 +84,11 @@ Paddle::~Paddle() {
 	delete collisionComponent;
 }
 
-void Paddle::actorInput(const uint8_t * keyboardState) {
+void FallingBlock::actorInput(const uint8_t * keyboardState) {
 	inputComponent->processInput(keyboardState);
 }
 
-void Paddle::updateActor(float deltaTime) {
+void FallingBlock::updateActor(float deltaTime) {
 	Rect gameWindow = Rect(Vector2D(0, 0), getGame()->getWindowSize());
 	Rect overlap = collisionComponent->getRect().getIntersection(gameWindow);
 	if (overlap.area() == 0.0f) {

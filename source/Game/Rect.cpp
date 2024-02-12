@@ -26,11 +26,11 @@ Rect::Rect() {
 }
 
 float Rect::area() const {
-	return size.getWidth() * size.getHeight();
+	return size.x * size.y;
 }
 
 float Rect::perimeter() const {
-	return 2 * size.getWidth() + 2 * size.getHeight();
+	return 2 * size.x + 2 * size.y;
 }
 
 Rect& Rect::operator=(const Rect& other) {
@@ -56,24 +56,24 @@ void Rect::correctIntersection(const Rect& other) {
 
 	Vector2D adjustmentVector = origin - intersection.origin;
 
-	float absX = std::abs(adjustmentVector.getX());
-	float absY = std::abs(adjustmentVector.getY());
+	float absX = std::abs(adjustmentVector.x);
+	float absY = std::abs(adjustmentVector.y);
 
 	if (absX <= absY) {
-		origin = Vector2D(origin.getX() + adjustmentVector.getX(), origin.getY());
+		origin = Vector2D(origin.x + adjustmentVector.x, origin.y);
 	} else {
-		origin = Vector2D(origin.getX(), origin.getY() + adjustmentVector.getY());
+		origin = Vector2D(origin.x, origin.y + adjustmentVector.y);
 	}
 }
 
 Rect Rect::getIntersection(const Rect& other) const {
 	// Calculate the max of the left coordinates and the min of the right coordinates
-	float left = std::max(this->origin.getX(), other.origin.getX());
-	float right = std::min(this->origin.getX() + this->size.getWidth(), other.origin.getX() + other.size.getWidth());
+	float left = std::max(this->origin.x, other.origin.x);
+	float right = std::min(this->origin.x + this->size.x, other.origin.x + other.size.x);
 
 	// Calculate the max of the top coordinates and the min of the bottom coordinates
-	float top = std::max(this->origin.getY(), other.origin.getY());
-	float bottom = std::min(this->origin.getY() + this->size.getHeight(), other.origin.getY() + other.size.getHeight());
+	float top = std::max(this->origin.y, other.origin.y);
+	float bottom = std::min(this->origin.y + this->size.y, other.origin.y + other.size.y);
 
 	// Check if there is no intersection
 	if (left >= right || top >= bottom) {

@@ -21,13 +21,7 @@
     <ClCompile Include="source\Game\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Game\SineWaveObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Game\Paddle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Game\Ball.cpp">
+    <ClCompile Include="source\Game\FallingBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Vector2D.cpp">
@@ -36,13 +30,7 @@
     <ClCompile Include="source\Game\Vector2DTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Game\Projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Game\TextChunk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Game\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Actor.cpp">
@@ -72,6 +60,21 @@
     <ClCompile Include="source\Game\MonospaceCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\FallingBlockMovementComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\RestingBlockBehavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\FallingBlockEmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\FallingBlockGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\CartesianCoordinate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Game\game.h">
@@ -80,37 +83,19 @@
     <ClInclude Include="source\VideoConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Game\SineWaveObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\MathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Game\Paddle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Game\IGameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Game\Ball.h">
+    <ClInclude Include="source\Game\FallingBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Vector2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Game\ICollideable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Game\Vector2DTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Game\Projectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Game\TextChunk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Game\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Actor.h">
@@ -138,6 +123,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\MonospaceCharacter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\FallingBlockMovementComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\RestingBlockBehavior.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\FallingBlockEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\FallingBlockGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\CartesianCoordinate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

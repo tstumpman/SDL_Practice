@@ -9,6 +9,7 @@ public:
 		float y
 	);
 	Vector2D();
+	float x, y;
 
 	Vector2D& operator=(const Vector2D& other);
 	Vector2D operator+(const Vector2D& other) const;
@@ -29,16 +30,11 @@ public:
 	Vector2D getNormal() const;
 	Vector2D getAxisAligned() const;
 	float getMagnitude() const;
-	float getX() const;
-	float getY() const;
-	float getHeight() const;
-	float getWidth() const;
 	float distanceTo(const Vector2D& destination) const;
 
 private: //Functions
 
 private://Data
-	float x, y;
 };
 
 #endif

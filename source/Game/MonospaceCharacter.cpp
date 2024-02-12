@@ -16,7 +16,6 @@ MonospaceCharacter::MonospaceCharacter(
 	this->spriteComponent = new SpriteComponent(this);
 	spriteComponent->setTexture(game->getTexture(characterSheet));
 	spriteComponent->setDrawSize(screenRect.getSize());
-
 	getGame()->addSprite(spriteComponent);
 }
 
