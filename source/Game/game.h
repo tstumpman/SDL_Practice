@@ -17,6 +17,7 @@ class SDL_Renderer;
 struct SDL_Texture;
 class SpriteComponent;
 class InputComponent;
+class TextChunk;
 class Actor;
 class Game {
 public://Functions
@@ -52,6 +53,11 @@ private://Functions
 private://Data
 	float minimumFrameLimit;
 	float maxDelta;
+	//FPS Counter
+	TextChunk* fpsCounter;
+	float secondsSinceStart;
+	long numberOfFramesRendered;
+	//END FPS Counter
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer;
 	SDL_Texture* mFontTexture;

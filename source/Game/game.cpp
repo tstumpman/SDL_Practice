@@ -12,6 +12,7 @@
 #include "inputcomponent.h"
 #include "SpriteComponent.h"
 #include "CollisionComponent.h"
+#include "TextChunk.h"
 using namespace std;
 
 Game::Game() {
@@ -20,6 +21,9 @@ Game::Game() {
 	mWindow = nullptr;
 	mRenderer = nullptr;
 	mFontTexture = nullptr;
+	secondsSinceStart = 0.0f;
+	numberOfFramesRendered = 0;
+	fpsCounter = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
 	loadedTextures = std::map<std::string, SDL_Texture*>();
@@ -132,12 +136,12 @@ void Game::runLoop() {
 	while (isRunning) {
 		float currentTimestamp = SDL_GetTicks() / 1000.0f;
 		deltaTime = getDeltaTime(previousTime, currentTimestamp, maxDelta);
-		if (deltaTime > minimumFrameLimit) {
+		//if (deltaTime > minimumFrameLimit) {
 			processInput();
 			updateGame(deltaTime);
 			generateOutput();
 			previousTime = currentTimestamp;
-		}
+		//}
 	}
 }
 
@@ -200,7 +204,12 @@ void Game::processInput() {
 }
 
 void Game::updateGame(float deltaTime) {
+	secondsSinceStart += deltaTime;
+	numberOfFramesRendered++;
 
+	float fps = (float)numberOfFramesRendered / secondsSinceStart;
+	std::string fpsString = to_string(fps);
+	fpsCounter->setText(fpsString);
 	//Update actors
 	isUpdatingActors = true;
 	for (auto actor : actors) {
@@ -262,8 +271,8 @@ const Vector2D Game::getWindowSize() const {
 void Game::generateHud( ) {
 	Vector2D textBoxSize = this->getWindowSize() * Vector2D(1, 1.0 / 4.0);
 	SDL_Color blue = SDL_Color{ 0, 0, 255, 255 };
-	auto textChunk = new TextChunk(this, textBoxSize, 20, 2, "resources/monospace_alpha.png", &blue );
-	textChunk->setText("Here is some text. EAT IT");
+	fpsCounter = new TextChunk(this, textBoxSize, 20, 2, "resources/monospace_alpha.png", &blue );
+	fpsCounter->setText("");
 
 	Vector2D gridSize = this->getWindowSize();
 	CartesianCoordinate gridDimensions = CartesianCoordinate(16, 9);
@@ -273,18 +282,18 @@ void Game::generateHud( ) {
 		grid->getCellPosition(index2d),
 		grid->getCellSize()
 	);
-	MonospaceCharacter * ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
-	ch->setCharacter(0);
-	grid->setItem(index2d, ch);
+	//MonospaceCharacter * ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
+	//ch->setCharacter('6');
+	//grid->setItem(index2d, ch);
 
-	index2d = CartesianCoordinate(1,1);
-	screenRect = Rect(
-		grid->getCellPosition(index2d),
-		grid->getCellSize()
-	);
-	ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
-	ch->setCharacter('a');
-	grid->setItem(index2d, ch);
+	//index2d = CartesianCoordinate(1,1);
+	//screenRect = Rect(
+	//	grid->getCellPosition(index2d),
+	//	grid->getCellSize()
+	//);
+	//ch = new MonospaceCharacter(this, screenRect, "resources/monospace_light.png");
+	//ch->setCharacter(54);
+	//grid->setItem(index2d, ch);
 
 }
 
