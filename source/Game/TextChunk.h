@@ -18,8 +18,7 @@ public://Functions
 		Vector2D boundarySize,
 		unsigned char lettersPerRow,
 		unsigned char rows,
-		std::string font,
-		SDL_Color* backgroundColor
+		std::string font
 	);
 
 	//Destructor
@@ -30,6 +29,7 @@ public://Functions
 	std::string setText(std::string newText);
 	void clearText();
 	void setPosition(Vector2D newPos) override;
+	void setBackgroundColor(SDL_Color color);
 
 	Rect getBoundary() const;
 

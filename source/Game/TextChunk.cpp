@@ -14,13 +14,12 @@ TextChunk::TextChunk(
 	Vector2D boundarySize,
 	unsigned char lettersPerRow,
 	unsigned char rows,
-	std::string font,
-	SDL_Color* backgroundColor
+	std::string font
 ) :
 	Actor(game)
 {
 	this->backgroundColor = new SDL_Color;
-	*(this->backgroundColor) = *backgroundColor;
+	*(this->backgroundColor) = SDL_Color{255, 255, 255, 255};
 	this->inputComponent = new InputComponent(this);
 	inputComponent->setForwardKey(SDL_SCANCODE_T);
 	inputComponent->setBackwardKey(SDL_SCANCODE_G);
@@ -77,6 +76,10 @@ std::string TextChunk::setText(std::string newText) {
 	}
 	newText.erase(0, numCharactersToModify);
 	return newText;
+}
+
+void TextChunk::setBackgroundColor(SDL_Color color) {
+	*(this->backgroundColor) = color;
 }
 
 void TextChunk::clearText() {
