@@ -191,6 +191,7 @@ xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Com
     <ClCompile Include="source\Game\FallingBlockEmitter.cpp" />
     <ClCompile Include="source\Game\FallingBlockGrid.cpp" />
     <ClCompile Include="source\Game\FallingBlockMovementComponent.cpp" />
+    <ClCompile Include="source\Game\FpsCounter.cpp" />
     <ClCompile Include="source\Game\game.cpp" />
     <ClCompile Include="source\Game\InputComponent.cpp" />
     <ClCompile Include="source\Game\MonospaceCharacter.cpp" />
@@ -213,6 +214,7 @@ xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Com
     <ClInclude Include="source\Game\FallingBlockEmitter.h" />
     <ClInclude Include="source\Game\FallingBlockGrid.h" />
     <ClInclude Include="source\Game\FallingBlockMovementComponent.h" />
+    <ClInclude Include="source\Game\FpsCounter.h" />
     <ClInclude Include="source\Game\game.h" />
     <ClInclude Include="source\Game\InputComponent.h" />
     <ClInclude Include="source\Game\MonospaceCharacter.h" />
@@ -226,6 +228,16 @@ xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Com
     <ClInclude Include="source\Game\Vector2DTest.h" />
     <ClInclude Include="source\MathUtils.h" />
     <ClInclude Include="source\VideoConstants.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\ball.png" />
+    <Image Include="resources\basic_font_monospace.png" />
+    <Image Include="resources\basic_font_monospace_alpha.png" />
+    <Image Include="resources\ex2.png" />
+    <Image Include="resources\monospace_alpha.png" />
+    <Image Include="resources\monospace_light.png" />
+    <Image Include="resources\monspace.png" />
+    <Image Include="resources\paddle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,6 +13,7 @@
 #include "SpriteComponent.h"
 #include "CollisionComponent.h"
 #include "TextChunk.h"
+#include "FpsCounter.h"
 using namespace std;
 
 Game::Game() {
@@ -21,9 +22,6 @@ Game::Game() {
 	mWindow = nullptr;
 	mRenderer = nullptr;
 	mFontTexture = nullptr;
-	secondsSinceStart = 0.0f;
-	numberOfFramesRendered = 0;
-	fpsCounter = nullptr;
 	minimumFrameLimit = 1.0f / 60.0f;//1/60th of a second
 	maxDelta = 1.0f / 8.0f;//1/8th of a second
 	loadedTextures = std::map<std::string, SDL_Texture*>();
@@ -204,12 +202,7 @@ void Game::processInput() {
 }
 
 void Game::updateGame(float deltaTime) {
-	secondsSinceStart += deltaTime;
-	numberOfFramesRendered++;
 
-	float fps = (float)numberOfFramesRendered / secondsSinceStart;
-	std::string fpsString = to_string(fps);
-	fpsCounter->setText(fpsString);
 	//Update actors
 	isUpdatingActors = true;
 	for (auto actor : actors) {
@@ -271,8 +264,8 @@ const Vector2D Game::getWindowSize() const {
 void Game::generateHud( ) {
 	Vector2D textBoxSize = this->getWindowSize() * Vector2D(1, 1.0 / 4.0);
 	SDL_Color blue = SDL_Color{ 0, 0, 255, 255 };
-	fpsCounter = new TextChunk(this, textBoxSize, 20, 2, "resources/monospace_alpha.png", &blue );
-	fpsCounter->setText("");
+	FpsCounter *fpsCounter = new FpsCounter(this);
+	fpsCounter->setBackgroundColor(blue);
 
 	Vector2D gridSize = this->getWindowSize();
 	CartesianCoordinate gridDimensions = CartesianCoordinate(16, 9);
