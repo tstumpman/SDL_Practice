@@ -72,15 +72,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Users\aosteen\Documents\Repositories\SDL_Practice\external\SDL\include\SDL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Users\aosteen\Documents\Repositories\SDL_Practice\external\SDL\include\SDL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>external\SDL\include\SDL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>external\SDL\lib\win\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>external/SDL/lib/win/x86;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Users\aosteen\Documents\Repositories\SDL_Practice\external\SDL\include\SDL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,11 +101,14 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_Image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external\SDL\lib\win\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2_Image.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\libpng16-16.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,11 +126,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_Image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external\SDL\lib\win\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2_Image.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\libpng16-16.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,10 +148,13 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>external\SDL\lib\win\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_Image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2_Image.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\libpng16-16.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,18 +173,59 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>external\SDL\lib\win\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_Image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\SDL2_Image.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\libpng16-16.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)\external\SDL\lib\win\x86\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Game\Actor.cpp" />
+    <ClCompile Include="source\Game\CartesianCoordinate.cpp" />
+    <ClCompile Include="source\Game\CollisionComponent.cpp" />
+    <ClCompile Include="source\Game\Color.cpp" />
+    <ClCompile Include="source\Game\Component.cpp" />
+    <ClCompile Include="source\Game\FallingBlockEmitter.cpp" />
+    <ClCompile Include="source\Game\FallingBlockGrid.cpp" />
+    <ClCompile Include="source\Game\FallingBlockMovementComponent.cpp" />
     <ClCompile Include="source\Game\game.cpp" />
+    <ClCompile Include="source\Game\InputComponent.cpp" />
+    <ClCompile Include="source\Game\MonospaceCharacter.cpp" />
+    <ClCompile Include="source\Game\MoveComponent.cpp" />
+    <ClCompile Include="source\Game\FallingBlock.cpp" />
+    <ClCompile Include="source\Game\Rect.cpp" />
+    <ClCompile Include="source\Game\RestingBlockBehavior.cpp" />
+    <ClCompile Include="source\Game\SpriteComponent.cpp" />
+    <ClCompile Include="source\Game\TextChunk.cpp" />
+    <ClCompile Include="source\Game\Vector2D.cpp" />
+    <ClCompile Include="source\Game\Vector2DTest.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\Game\Actor.h" />
+    <ClInclude Include="source\Game\CartesianCoordinate.h" />
+    <ClInclude Include="source\Game\CollisionComponent.h" />
+    <ClInclude Include="source\Game\Color.h" />
+    <ClInclude Include="source\Game\Component.h" />
+    <ClInclude Include="source\Game\FallingBlockEmitter.h" />
+    <ClInclude Include="source\Game\FallingBlockGrid.h" />
+    <ClInclude Include="source\Game\FallingBlockMovementComponent.h" />
     <ClInclude Include="source\Game\game.h" />
+    <ClInclude Include="source\Game\InputComponent.h" />
+    <ClInclude Include="source\Game\MonospaceCharacter.h" />
+    <ClInclude Include="source\Game\MoveComponent.h" />
+    <ClInclude Include="source\Game\FallingBlock.h" />
+    <ClInclude Include="source\Game\Rect.h" />
+    <ClInclude Include="source\Game\RestingBlockBehavior.h" />
+    <ClInclude Include="source\Game\SpriteComponent.h" />
+    <ClInclude Include="source\Game\TextChunk.h" />
+    <ClInclude Include="source\Game\Vector2D.h" />
+    <ClInclude Include="source\Game\Vector2DTest.h" />
+    <ClInclude Include="source\MathUtils.h" />
+    <ClInclude Include="source\VideoConstants.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
